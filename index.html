@@ -704,7 +704,7 @@ code{font-family:monospace;}
         <div id="tripSky"  style="font-size:0.78rem;opacity:0.6;margin-top:2px;">Loading weather…</div>
       </div>
       <div style="text-align:right;">
-        <div id="syncStatus" style="font-size:0.75rem;color:#4caf50;">Ready</div>
+        <div id="syncStatus" style="display:none;">Ready</div>
         <div style="font-size:0.7rem;opacity:0.4;margin-top:2px;" id="tripCodeStrip"></div>
       </div>
     </div>
@@ -821,38 +821,13 @@ code{font-family:monospace;}
         <!-- TAB 3: SETTINGS -->
         <div class="tab-pnl">
 
-          <!-- Dropbox Sync -->
-          <div class="glass" style="padding:14px 18px;" id="dbxCard">
-            <div id="dbxConnected" style="display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <div style="font-size:0.85rem;font-weight:600;">☁️ Dropbox Sync</div>
-                <div style="font-size:0.72rem;opacity:0.5;margin-top:2px;">Auto-refreshing · shared across devices</div>
-              </div>
-              <button class="btn btn-glass btn-icon" onclick="syncFromCloud()" title="Sync now">🔄</button>
-            </div>
-            <div id="dbxSetup" style="display:none;">
-              <div style="font-size:0.85rem;font-weight:600;margin-bottom:4px;">☁️ Connect Dropbox</div>
-              <div style="font-size:0.78rem;opacity:0.55;margin-bottom:12px;">One-time setup · takes ~3 minutes</div>
-              <div class="input-row" style="margin-bottom:8px;">
-                <input type="text" id="dbxKey" placeholder="App Key" autocomplete="off" spellcheck="false" style="font-family:monospace;font-size:0.85rem;">
-                <input type="text" id="dbxSecret" placeholder="App Secret" autocomplete="off" spellcheck="false" style="font-family:monospace;font-size:0.85rem;">
-              </div>
-              <button class="btn btn-red" style="width:100%;margin-bottom:8px;" onclick="dbxStartAuth()">Authorise with Dropbox →</button>
-              <div style="font-size:0.75rem;opacity:0.45;text-align:center;">
-                Don't have these? <span style="color:var(--red);cursor:pointer;text-decoration:underline;" onclick="showDbxGuide()">See setup guide ↗</span>
-              </div>
-            </div>
-            <div id="dbxCodeStep" style="display:none;">
-              <div style="font-size:0.85rem;font-weight:600;margin-bottom:6px;">Step 2 — Paste the code</div>
-              <div style="font-size:0.78rem;opacity:0.6;margin-bottom:12px;">After clicking Allow on the Dropbox page, paste the code shown here:</div>
-              <div class="input-row" style="margin-bottom:8px;">
-                <input type="text" id="dbxAuthCode" placeholder="Paste authorisation code here" autocomplete="off" spellcheck="false" style="font-family:monospace;font-size:0.85rem;" onkeydown="if(event.key==='Enter')dbxExchangeCode()">
-              </div>
-              <div style="display:flex;gap:8px;">
-                <button class="btn btn-red" style="flex:1;" onclick="dbxExchangeCode()">Finish Setup</button>
-                <button class="btn btn-glass" onclick="dbxCancelAuth()">Back</button>
-              </div>
-              <div id="dbxCodeError" style="display:none;margin-top:10px;font-size:0.78rem;color:#ff6b6b;"></div>
+          <!-- Sync status pill — no user-facing Dropbox config needed -->
+          <div class="glass" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:0.85rem;font-weight:600;">Cloud Sync</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="syncDot" style="width:8px;height:8px;border-radius:50%;background:#4caf50;box-shadow:0 0 6px #4caf50;"></div>
+              <div id="syncStatus" style="font-size:0.8rem;color:#4caf50;">Connected</div>
+              <button class="btn btn-glass btn-icon" onclick="syncFromCloud()" title="Sync now" style="padding:6px 10px;font-size:0.85rem;">🔄</button>
             </div>
           </div>
 
@@ -886,23 +861,6 @@ code{font-family:monospace;}
       </div><!-- /tabs-sl -->
     </div><!-- /tabs-vp -->
 
-    <!-- Dropbox guide modal -->
-    <div id="dbxGuideModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:900;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px;">
-      <div style="max-width:560px;margin:0 auto;background:rgba(17,26,40,0.99);border:1px solid var(--glass-b);border-radius:20px;padding:24px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;">Dropbox Setup Guide</h3>
-          <button onclick="hideDbxGuide()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;opacity:0.5;line-height:1;">✕</button>
-        </div>
-        <div style="font-size:0.85rem;line-height:1.75;opacity:0.88;">
-          <p style="margin-bottom:14px;opacity:0.65;">Do this once — then the app handles everything automatically.</p>
-          <div class="help-step"><span class="step-n">1</span><div><strong>Create a Dropbox App</strong><br>Go to <a href="https://www.dropbox.com/developers/apps" target="_blank" style="color:var(--red);">dropbox.com/developers/apps</a> → Create app → Scoped access → App folder → any name → Create app.</div></div>
-          <div class="help-step"><span class="step-n">2</span><div><strong>Leave Redirect URIs blank</strong><br>On the Settings tab, make sure OAuth 2 Redirect URIs is completely empty.</div></div>
-          <div class="help-step"><span class="step-n">3</span><div><strong>Set permissions</strong><br>Permissions tab → tick <code>files.content.read</code> and <code>files.content.write</code> → Submit.</div></div>
-          <div class="help-step"><span class="step-n">4</span><div><strong>Copy App Key &amp; Secret</strong><br>Settings tab → paste both into the fields → tap Authorise.</div></div>
-        </div>
-        <button class="btn btn-red" style="width:100%;margin-top:18px;" onclick="hideDbxGuide()">Got it</button>
-      </div>
-    </div>
 
   </div><!-- /scroll-wrap -->
 
@@ -1321,7 +1279,6 @@ function openTrip(id){
 
   // Weather — fetch for destination
   fetchWeather(TRIP.destination);
-  updateDbxUI();
   showScreen('trip');
 }
 
@@ -1340,7 +1297,19 @@ function saveTripLocal(){
   TRIP=db.trips[openTripId];
 }
 function saveAndSync(){ saveTripLocal(); render(); setStatus('☁️ Pending…'); clearTimeout(syncTimer); syncTimer=setTimeout(syncToCloud,2000); }
-function setStatus(msg){ const el=document.getElementById('syncStatus');if(el)el.textContent=msg; }
+function setStatus(msg){
+  const el=document.getElementById('syncStatus');
+  const dot=document.getElementById('syncDot');
+  if(el)el.textContent=msg;
+  if(dot){
+    const ok=msg.includes('✅')||msg.includes('Connected');
+    const err=msg.includes('❌')||msg.includes('Error')||msg.includes('Offline');
+    const busy=msg.includes('…')||msg.includes('Syncing')||msg.includes('Connecting');
+    dot.style.background = ok?'#4caf50':err?'#e74c3c':'#f39c12';
+    dot.style.boxShadow  = ok?'0 0 6px #4caf50':err?'0 0 6px #e74c3c':'0 0 6px #f39c12';
+    if(el) el.style.color = ok?'#4caf50':err?'#e74c3c':'#f39c12';
+  }
+}
 
 // ════════════════════════════════════════
 // INDEXEDDB (for images — trip-scoped key prefix)
@@ -1385,40 +1354,6 @@ async function getAccessToken(){
   }catch(e){setStatus('☁️ Offline');return null;}
 }
 function hasDbxCredentials(){ return !!(localStorage.getItem('dbx_key')&&localStorage.getItem('dbx_secret')&&localStorage.getItem('dbx_refresh')); }
-function showDbxGuide(){ document.getElementById('dbxGuideModal').style.display='block'; }
-function hideDbxGuide(){ document.getElementById('dbxGuideModal').style.display='none'; }
-function showDbxSetup(){ document.getElementById('dbxConnected').style.display='none'; document.getElementById('dbxSetup').style.display='block'; document.getElementById('dbxCodeStep').style.display='none'; }
-function dbxStartAuth(){
-  const key=document.getElementById('dbxKey').value.trim(),secret=document.getElementById('dbxSecret').value.trim();
-  if(!key||!secret){alert('Please enter both App Key and App Secret.');return;}
-  sessionStorage.setItem('dbx_key_tmp',key);sessionStorage.setItem('dbx_secret_tmp',secret);
-  window.open('https://www.dropbox.com/oauth2/authorize?client_id='+encodeURIComponent(key)+'&response_type=code&token_access_type=offline','_blank');
-  document.getElementById('dbxSetup').style.display='none';document.getElementById('dbxCodeStep').style.display='block';
-  document.getElementById('dbxAuthCode').focus();document.getElementById('dbxCodeError').style.display='none';
-}
-function dbxCancelAuth(){ document.getElementById('dbxCodeStep').style.display='none';document.getElementById('dbxSetup').style.display='block'; }
-async function dbxExchangeCode(){
-  const code=document.getElementById('dbxAuthCode').value.trim();
-  if(!code){alert('Please paste the code.');return;}
-  const key=sessionStorage.getItem('dbx_key_tmp'),secret=sessionStorage.getItem('dbx_secret_tmp');
-  if(!key||!secret){dbxCancelAuth();return;}
-  const errEl=document.getElementById('dbxCodeError'); errEl.style.display='none';
-  const btn=document.querySelector('#dbxCodeStep .btn-red'); btn.textContent='Connecting…';btn.disabled=true;
-  try{
-    const r=await fetch('https://api.dropbox.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(key+':'+secret)},body:'code='+encodeURIComponent(code)+'&grant_type=authorization_code'});
-    const d=await r.json();
-    if(!r.ok||!d.refresh_token){errEl.textContent='❌ '+(d.error_description||d.error||'Unknown error');errEl.style.display='block';btn.textContent='Finish Setup';btn.disabled=false;return;}
-    localStorage.setItem('dbx_key',key);localStorage.setItem('dbx_secret',secret);localStorage.setItem('dbx_refresh',d.refresh_token);
-    sessionStorage.removeItem('dbx_key_tmp');sessionStorage.removeItem('dbx_secret_tmp');
-    cachedToken=d.access_token;tokenExpiry=Date.now()+(d.expires_in||14400)*1000;
-    document.getElementById('dbxAuthCode').value='';
-    updateDbxUI(); syncFromCloud();
-  }catch(e){ errEl.textContent='❌ Network error.';errEl.style.display='block';btn.textContent='Finish Setup';btn.disabled=false; }
-}
-function updateDbxUI(){
-  if(hasDbxCredentials()){ document.getElementById('dbxConnected').style.display='flex';document.getElementById('dbxSetup').style.display='none';document.getElementById('dbxCodeStep').style.display='none'; }
-  else{ document.getElementById('dbxConnected').style.display='none';document.getElementById('dbxSetup').style.display='block';document.getElementById('dbxCodeStep').style.display='none'; }
-}
 function tripCloudPath(){ return '/allabroad/'+(openTripId||'trip')+'/data.json'; }
 function tripImgPath(id){ return '/allabroad/'+(openTripId||'trip')+'/images/'+id; }
 
@@ -1806,9 +1741,19 @@ let toastT=null;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ════════════════════════════════════════
-// STARTUP
+// STARTUP — credentials baked in, zero setup needed
 // ════════════════════════════════════════
+const BAKED = {
+  key:     'psrzby03p9rz8bh',
+  secret:  'vsl3cp8tclkmhjv',
+  refresh: 'Fw1F2gzo8eIAAAAAAAAAAeZqHLb6Q-lkoGjp2gEx3X3V79e1sNmFBju_uOT7TRFq'
+};
+
 openIDB().then(()=>{
+  // Seed credentials on every device — no setup needed
+  localStorage.setItem('dbx_key',     BAKED.key);
+  localStorage.setItem('dbx_secret',  BAKED.secret);
+  localStorage.setItem('dbx_refresh', BAKED.refresh);
   if(CU){ renderDashboard(); showScreen('dash'); }
 });
 </script>

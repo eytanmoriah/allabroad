@@ -1610,11 +1610,13 @@ const DEST_PHOTOS = {
   chile:        'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=1600&q=80',   // Patagonia
 
   // ── Cruise keyword (Task 2) ─────────────────────────────────────────────────
-  // Any input containing "cruise" shows a cruise ship at sea
-  cruise:       'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',
-  cruiseship:   'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',
-  mediterranean:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',  // Med cruise
-  caribbean:    'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',   // Caribbean cruise
+  // Cinematic wide-angle luxury cruise ship on tropical waters.
+  // Primary: aerial shot of large modern liner, crystal Caribbean water.
+  // setCruiseBg() below applies these as a waterfall with onerror fallbacks.
+  cruise:       'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80',
+  cruiseship:   'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80',
+  mediterranean:'https://images.unsplash.com/photo-1506905959593-eb7e1d5ec8c6?w=1600&q=80',  // Med — stern aerial
+  caribbean:    'https://images.unsplash.com/photo-1569263979-b48ccea0aa8b?w=1600&q=80',      // Caribbean wide
 
   // ── Easter eggs — unusual / fictional / space (Task 3) ─────────────────────
   moon:         'https://images.unsplash.com/photo-1446941611757-91d2c3bd3d45?w=1600&q=80',  // Full moon close-up
@@ -1651,6 +1653,36 @@ const DEST_PHOTOS = {
   // Used when no keyword matches — dramatic planet-from-space / travel shot
   default:      'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1600&q=80'
 };
+
+// ════════════════════════════════════════
+// CRUISE IMAGE WATERFALL
+// Tries each candidate URL in order. If one fails to load
+// (onerror), the next is tried, giving resilience against
+// Unsplash CDN rotation without needing an API key.
+// ════════════════════════════════════════
+const CRUISE_WATERFALL = [
+  'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80', // aerial wide, crystal Caribbean
+  'https://images.unsplash.com/photo-1506905959593-eb7e1d5ec8c6?w=1600&q=80', // stern aerial, turquoise
+  'https://images.unsplash.com/photo-1569263979-b48ccea0aa8b?w=1600&q=80', // side profile, wide blue sky
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80', // luxury tropical ocean
+  'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1600&q=80'  // ultimate travel fallback
+];
+
+function setCruiseBg(applyFn, idx){
+  idx = idx || 0;
+  if(idx >= CRUISE_WATERFALL.length) return;
+  const url = CRUISE_WATERFALL[idx];
+  const probe = new Image();
+  probe.onload  = () => applyFn(url);
+  probe.onerror = () => setCruiseBg(applyFn, idx + 1);
+  probe.src = url + '&probe=1'; // cache-bust prevents stale negative cache
+}
+
+function isCruiseDest(dest){
+  if(!dest) return false;
+  const d = dest.toLowerCase().replace(/[\s,.'\-]/g,'');
+  return d.includes('cruise') || dest.toLowerCase().includes('cruise');
+}
 
 // ════════════════════════════════════════
 // PHOTO RESOLVER — four-tier lookup
@@ -2146,10 +2178,16 @@ function onDestInput(val){
   destDebounce=setTimeout(()=>{
     const prev=document.getElementById('dest-prev');
     if(val.trim().length>2){
-      const url=getPhoto(val);
-      document.getElementById('dest-prev-img').src=url;
-      document.getElementById('dest-prev-lbl').textContent=val;
-      prev.style.display='block';
+      const img=document.getElementById('dest-prev-img');
+      if(isCruiseDest(val)){
+        prev.style.display='block';
+        document.getElementById('dest-prev-lbl').textContent=val;
+        setCruiseBg(url=>{ img.src=url; });
+      } else {
+        img.src=getPhoto(val);
+        document.getElementById('dest-prev-lbl').textContent=val;
+        prev.style.display='block';
+      }
     }else prev.style.display='none';
   },350);
 }
@@ -2370,7 +2408,16 @@ function openTrip(id){
   if(!personLists[activeTraveler]) personLists[activeTraveler]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};
 
   // Update UI
-  document.getElementById('tripBg').style.backgroundImage=`url('${TRIP.photo||getPhoto(TRIP.destination)}')`;
+  // For cruise destinations: use waterfall loader so poor-quality images cascade to better ones
+  const _bgDest = TRIP.destination||'';
+  if(isCruiseDest(_bgDest) && !TRIP.photo){
+    setCruiseBg(url=>{
+      const el=document.getElementById('tripBg');
+      if(el) el.style.backgroundImage=`url('${url}')`;
+    });
+  } else {
+    document.getElementById('tripBg').style.backgroundImage=`url('${TRIP.photo||getPhoto(TRIP.destination)}')`;
+  }
   document.getElementById('tripTitle').innerHTML=esc(TRIP.destination)+'<span>.</span>';
   document.getElementById('tripSubtitle').textContent=TRIP.dates||'';
   document.getElementById('tripCodeStrip').textContent='Code: '+TRIP.code;

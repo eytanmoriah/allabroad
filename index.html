@@ -4,9 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Allabroad</title>
+
+<!-- ═══════════════════════════════════════════
+     PWA / Home Screen configuration
+     Globe icon works on iOS, Android, and desktop PWA installs.
+     The manifest is injected as a blob URL by the inline script below.
+     apple-touch-icon uses a pre-rendered 180×180 PNG (iOS requirement).
+════════════════════════════════════════════ -->
+
+<!-- iOS Safari "Add to Home Screen" -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Allabroad">
+
+<!-- Apple touch icon — 180×180 PNG (required; iOS ignores SVG) -->
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,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">
+
+<!-- Android / Chrome "Add to Home Screen" -->
 <meta name="theme-color" content="#0a0a1a">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Standard favicon (SVG — works in modern browsers) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiI+CiAgPHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzOCIgZmlsbD0iIzBhMGExYSIvPgogIDwhLS0gR2xvYmUgY2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iOTYiIHI9IjgwIiBmaWxsPSIjMWEyYTUwIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMyIvPgogIDwhLS0gTGF0aXR1ZGUgbGluZXMgLS0+CiAgPGVsbGlwc2UgY3g9Ijk2IiBjeT0iOTYiIHJ4PSI4MCIgcnk9IjIyIiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMyIgb3BhY2l0eT0iMC43Ii8+CiAgPGVsbGlwc2UgY3g9Ijk2IiBjeT0iOTYiIHJ4PSI4MCIgcnk9IjQ5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMyIgb3BhY2l0eT0iMC41Ii8+CiAgPCEtLSBMb25naXR1ZGUgY2VudHJlIGxpbmUgKHZlcnRpY2FsIGVsbGlwc2UpIC0tPgogIDxlbGxpcHNlIGN4PSI5NiIgY3k9Ijk2IiByeD0iMzAiIHJ5PSI4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGE4ZmQ0IiBzdHJva2Utd2lkdGg9IjMiIG9wYWNpdHk9IjAuNyIvPgogIDwhLS0gQ2xpcCBnbG9iZSB0byBjaXJjbGUgLS0+CiAgPGNsaXBQYXRoIGlkPSJnYzE5MiI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iODAiLz48L2NsaXBQYXRoPgogIDwhLS0gTGFuZG1hc3MgYmxvYnMgKHNpbXBsaWZpZWQgY29udGluZW50cykgLS0+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2djMTkyKSIgZmlsbD0iI0RDMTQzQyIgb3BhY2l0eT0iMC44NSI+CiAgICA8IS0tIEV1cm9wZS9BZnJpY2EgLS0+CiAgICA8ZWxsaXBzZSBjeD0iODkiIGN5PSI4NiIgcng9IjE0IiByeT0iMjQiLz4KICAgIDwhLS0gQW1lcmljYXMgLS0+CiAgICA8ZWxsaXBzZSBjeD0iNTciIGN5PSI5NyIgcng9IjEyIiByeT0iMjgiLz4KICAgIDwhLS0gQXNpYSAtLT4KICAgIDxlbGxpcHNlIGN4PSIxMjAiIGN5PSI4NCIgcng9IjIwIiByeT0iMTciLz4KICAgIDwhLS0gQXVzdHJhbGlhIC0tPgogICAgPGVsbGlwc2UgY3g9IjEyOSIgY3k9IjEyNCIgcng9IjEwIiByeT0iOCIvPgogIDwvZz4KICA8IS0tIEdsb2JlIG91dGxpbmUgKG9uIHRvcCkgLS0+CiAgPGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzZhYjBmNSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPCEtLSBTaGluZSBoaWdobGlnaHQgLS0+CiAgPGVsbGlwc2UgY3g9IjczIiBjeT0iNzMiIHJ4PSIxNCIgcnk9IjkiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjEyIiB0cmFuc2Zvcm09InJvdGF0ZSgtMzUgOTYgOTYpIi8+Cjwvc3ZnPg==">
+
+<!-- PWA manifest injected as blob (single-file — no manifest.json needed) -->
+<script>
+(function(){
+  const icons = [
+    { src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMTkyIDE5MiI+CiAgPHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzOCIgZmlsbD0iIzBhMGExYSIvPgogIDwhLS0gR2xvYmUgY2lyY2xlIC0tPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iOTYiIHI9IjgwIiBmaWxsPSIjMWEyYTUwIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMyIvPgogIDwhLS0gTGF0aXR1ZGUgbGluZXMgLS0+CiAgPGVsbGlwc2UgY3g9Ijk2IiBjeT0iOTYiIHJ4PSI4MCIgcnk9IjIyIiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMyIgb3BhY2l0eT0iMC43Ii8+CiAgPGVsbGlwc2UgY3g9Ijk2IiBjeT0iOTYiIHJ4PSI4MCIgcnk9IjQ5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iMyIgb3BhY2l0eT0iMC41Ii8+CiAgPCEtLSBMb25naXR1ZGUgY2VudHJlIGxpbmUgKHZlcnRpY2FsIGVsbGlwc2UpIC0tPgogIDxlbGxpcHNlIGN4PSI5NiIgY3k9Ijk2IiByeD0iMzAiIHJ5PSI4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGE4ZmQ0IiBzdHJva2Utd2lkdGg9IjMiIG9wYWNpdHk9IjAuNyIvPgogIDwhLS0gQ2xpcCBnbG9iZSB0byBjaXJjbGUgLS0+CiAgPGNsaXBQYXRoIGlkPSJnYzE5MiI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iODAiLz48L2NsaXBQYXRoPgogIDwhLS0gTGFuZG1hc3MgYmxvYnMgKHNpbXBsaWZpZWQgY29udGluZW50cykgLS0+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2djMTkyKSIgZmlsbD0iI0RDMTQzQyIgb3BhY2l0eT0iMC44NSI+CiAgICA8IS0tIEV1cm9wZS9BZnJpY2EgLS0+CiAgICA8ZWxsaXBzZSBjeD0iODkiIGN5PSI4NiIgcng9IjE0IiByeT0iMjQiLz4KICAgIDwhLS0gQW1lcmljYXMgLS0+CiAgICA8ZWxsaXBzZSBjeD0iNTciIGN5PSI5NyIgcng9IjEyIiByeT0iMjgiLz4KICAgIDwhLS0gQXNpYSAtLT4KICAgIDxlbGxpcHNlIGN4PSIxMjAiIGN5PSI4NCIgcng9IjIwIiByeT0iMTciLz4KICAgIDwhLS0gQXVzdHJhbGlhIC0tPgogICAgPGVsbGlwc2UgY3g9IjEyOSIgY3k9IjEyNCIgcng9IjEwIiByeT0iOCIvPgogIDwvZz4KICA8IS0tIEdsb2JlIG91dGxpbmUgKG9uIHRvcCkgLS0+CiAgPGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzZhYjBmNSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPCEtLSBTaGluZSBoaWdobGlnaHQgLS0+CiAgPGVsbGlwc2UgY3g9IjczIiBjeT0iNzMiIHJ4PSIxNCIgcnk9IjkiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjEyIiB0cmFuc2Zvcm09InJvdGF0ZSgtMzUgOTYgOTYpIi8+Cjwvc3ZnPg==", sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+    { src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMDIiIGZpbGw9IiMwYTBhMWEiLz4KICA8IS0tIEdsb2JlIGNpcmNsZSAtLT4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjIxNSIgZmlsbD0iIzFhMmE1MCIgc3Ryb2tlPSIjNGE4ZmQ0IiBzdHJva2Utd2lkdGg9IjgiLz4KICA8IS0tIExhdGl0dWRlIGxpbmVzIC0tPgogIDxlbGxpcHNlIGN4PSIyNTYiIGN5PSIyNTYiIHJ4PSIyMTUiIHJ5PSI2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGE4ZmQ0IiBzdHJva2Utd2lkdGg9IjgiIG9wYWNpdHk9IjAuNyIvPgogIDxlbGxpcHNlIGN4PSIyNTYiIGN5PSIyNTYiIHJ4PSIyMTUiIHJ5PSIxMzMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhOGZkNCIgc3Ryb2tlLXdpZHRoPSI4IiBvcGFjaXR5PSIwLjUiLz4KICA8IS0tIExvbmdpdHVkZSBjZW50cmUgbGluZSAodmVydGljYWwgZWxsaXBzZSkgLS0+CiAgPGVsbGlwc2UgY3g9IjI1NiIgY3k9IjI1NiIgcng9IjgxIiByeT0iMjE1IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YThmZDQiIHN0cm9rZS13aWR0aD0iOCIgb3BhY2l0eT0iMC43Ii8+CiAgPCEtLSBDbGlwIGdsb2JlIHRvIGNpcmNsZSAtLT4KICA8Y2xpcFBhdGggaWQ9ImdjNTEyIj48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjIxNSIvPjwvY2xpcFBhdGg+CiAgPCEtLSBMYW5kbWFzcyBibG9icyAoc2ltcGxpZmllZCBjb250aW5lbnRzKSAtLT4KICA8ZyBjbGlwLXBhdGg9InVybCgjZ2M1MTIpIiBmaWxsPSIjREMxNDNDIiBvcGFjaXR5PSIwLjg1Ij4KICAgIDwhLS0gRXVyb3BlL0FmcmljYSAtLT4KICAgIDxlbGxpcHNlIGN4PSIyMzgiIGN5PSIyMzAiIHJ4PSIzOCIgcnk9IjY0Ii8+CiAgICA8IS0tIEFtZXJpY2FzIC0tPgogICAgPGVsbGlwc2UgY3g9IjE1MiIgY3k9IjI2MCIgcng9IjM0IiByeT0iNzUiLz4KICAgIDwhLS0gQXNpYSAtLT4KICAgIDxlbGxpcHNlIGN4PSIzMjAiIGN5PSIyMjMiIHJ4PSI1MyIgcnk9IjQ3Ii8+CiAgICA8IS0tIEF1c3RyYWxpYSAtLT4KICAgIDxlbGxpcHNlIGN4PSIzNDYiIGN5PSIzMzEiIHJ4PSIyNyIgcnk9IjIxIi8+CiAgPC9nPgogIDwhLS0gR2xvYmUgb3V0bGluZSAob24gdG9wKSAtLT4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjIxNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNmFiMGY1IiBzdHJva2Utd2lkdGg9IjgiLz4KICA8IS0tIFNoaW5lIGhpZ2hsaWdodCAtLT4KICA8ZWxsaXBzZSBjeD0iMTk1IiBjeT0iMTk1IiByeD0iMzgiIHJ5PSIyNSIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuMTIiIHRyYW5zZm9ybT0icm90YXRlKC0zNSAyNTYgMjU2KSIvPgo8L3N2Zz4=", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+  ];
+  const manifest = {
+    name: "Allabroad",
+    short_name: "Allabroad",
+    description: "Plan trips together. Travel further.",
+    start_url: "./",
+    display: "standalone",
+    orientation: "portrait-primary",
+    background_color: "#0a0a1a",
+    theme_color: "#0a0a1a",
+    categories: ["travel", "lifestyle"],
+    icons
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:"application/manifest+json"});
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel  = 'manifest';
+  link.href = url;
+  document.head.appendChild(link);
+})();
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 
@@ -1185,7 +1233,8 @@ input, textarea, select { font-size: 16px !important; }
             <div style="font-size:0.78rem;opacity:0.55;margin-bottom:12px;">Destructive actions for organisers only.</div>
             <button class="btn btn-glass" style="width:100%;border-color:rgba(220,20,60,0.4);color:rgba(255,100,100,0.85);margin-bottom:10px;" onclick="resetApp()">🔄 Reset Trip Data</button>
             <div id="deleteTripBtnWrap" style="display:none;">
-              <button class="btn btn-glass" style="width:100%;border-color:rgba(255,69,96,0.6);color:#ff4560;background:rgba(255,69,96,0.1);"
+              <button class="btn btn-glass" id="dangerTripBtn"
+                style="width:100%;border-color:rgba(255,69,96,0.6);color:#ff4560;background:rgba(255,69,96,0.1);"
                 onclick="openDeleteTrip(openTripId)">🗑 Delete Trip Permanently</button>
             </div>
           </div>
@@ -1269,20 +1318,21 @@ input, textarea, select { font-size: 16px !important; }
 </div>
 
 
-<!-- Delete Trip Modal -->
+<!-- Delete / Leave Trip Modal (role-aware) -->
 <div class="modal-bd" id="md-delete-trip">
   <div class="modal-sh">
     <div class="modal-handle"></div>
-    <div class="modal-title" style="color:#ff4560;">🗑 Delete Trip</div>
-    <div class="modal-sub">This permanently deletes the trip and all its data for <strong>every traveller</strong> on all devices. This cannot be undone.</div>
+    <div class="modal-title" id="dt-modal-title" style="color:#ff4560;">🗑 Delete Trip</div>
+    <div class="modal-sub" id="dt-modal-sub">This permanently deletes the trip and all its data for <strong>every traveller</strong> on all devices. This cannot be undone.</div>
     <div id="dt-trip-name" style="margin:16px 0;padding:14px 16px;background:rgba(255,69,96,0.1);border:1px solid rgba(255,69,96,0.3);border-radius:12px;font-weight:700;font-size:1rem;text-align:center;letter-spacing:0.02em;"></div>
-    <div class="modal-field">
-      <label>Type the destination to confirm</label>
+    <div class="modal-field" id="dt-confirm-field">
+      <label id="dt-confirm-label">Type the destination to confirm</label>
       <input type="text" id="dt-confirm" placeholder="" autocomplete="off"
         oninput="document.getElementById('dt-delete-btn').disabled=this.value.trim().toLowerCase()!==document.getElementById('dt-expected').value.toLowerCase()">
     </div>
     <input type="hidden" id="dt-trip-id" value="">
     <input type="hidden" id="dt-expected" value="">
+    <input type="hidden" id="dt-role" value="">
     <div class="modal-err" id="dt-err"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeMd('md-delete-trip')">Cancel</button>
@@ -1683,7 +1733,7 @@ function renderDashboard(){
       <div class="tc-bg" style="background-image:url('${trip.photo||getPhoto(trip.destination)}')"></div>
       <div class="tc-ov"></div>
       <div class="tc-code">${trip.code}</div>
-      ${isOwner?`<button class="tc-del-btn" title="Delete trip" onclick="event.stopPropagation();openDeleteTrip('${trip.id}')">🗑</button>`:''}
+      <button class="tc-del-btn" title="${isOwner?'Delete trip':'Leave trip'}" onclick="event.stopPropagation();openDeleteTrip('${trip.id}')">${isOwner?'🗑':'🚪'}</button>
       <div class="tc-body">
         <div class="tc-badge">${isOwner?'✦ Organiser':'✈ Traveler'}</div>
         <div class="tc-dest">${esc(trip.destination)}</div>
@@ -2458,9 +2508,28 @@ function renderTravelerSettings(){
     <div class="trav-info"><div class="trav-name">${esc(displayName(t.username))}</div><div class="trav-role">Joined ${new Date(t.joinedAt||Date.now()).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div>
     <div class="trav-badge ${t.role==='owner'?'b-owner':'b-traveler'}">${t.role==='owner'?'Organiser':'Traveler'}</div>
   </div>`).join('');
-  // Show delete-trip button only to the organiser
+  // Show delete/leave button to everyone — label changes by role
   const wrap=document.getElementById('deleteTripBtnWrap');
-  if(wrap) wrap.style.display=(TRIP&&TRIP.owner===CU.username)?'block':'none';
+  const dangerBtn=document.getElementById('dangerTripBtn');
+  if(wrap && TRIP){
+    const isOwner = TRIP.owner === CU.username;
+    wrap.style.display = 'block';
+    if(dangerBtn){
+      if(isOwner){
+        dangerBtn.textContent = '🗑 Delete Trip Permanently';
+        dangerBtn.style.borderColor = 'rgba(255,69,96,0.6)';
+        dangerBtn.style.color = '#ff4560';
+        dangerBtn.style.background = 'rgba(255,69,96,0.1)';
+      } else {
+        dangerBtn.textContent = '🚪 Leave This Trip';
+        dangerBtn.style.borderColor = 'rgba(220,140,30,0.6)';
+        dangerBtn.style.color = '#e09030';
+        dangerBtn.style.background = 'rgba(220,140,30,0.08)';
+      }
+    }
+  } else if(wrap){
+    wrap.style.display = 'none';
+  }
   // Populate date picker with current trip dates
   initSettingsDatePicker();
 }
@@ -2550,93 +2619,192 @@ function requestNotifPermission(){
 // RESET TRIP
 // ════════════════════════════════════════
 function openDeleteTrip(tripId){
-  const db=wDB();
-  const trip=db.trips[tripId];
-  if(!trip||trip.owner!==CU.username){
-    showToast('Only the organiser can delete a trip.');
-    return;
+  const db   = wDB();
+  const trip = db.trips[tripId];
+  if(!trip){ showToast('Trip not found.'); return; }
+
+  const isOwner = trip.owner === CU.username;
+
+  // Populate shared fields
+  document.getElementById('dt-trip-id').value           = tripId;
+  document.getElementById('dt-role').value               = isOwner ? 'owner' : 'traveler';
+  document.getElementById('dt-trip-name').textContent    = trip.destination;
+  document.getElementById('dt-confirm').value            = '';
+  document.getElementById('dt-err').textContent          = '';
+
+  if(isOwner){
+    // Hard-delete path — requires typing the destination
+    document.getElementById('dt-modal-title').textContent  = '🗑 Delete Trip';
+    document.getElementById('dt-modal-sub').innerHTML      =
+      'This permanently deletes <strong>' + esc(trip.destination) +
+      '</strong> and all its data for <strong>every traveller</strong> on all devices. Cannot be undone.';
+    document.getElementById('dt-confirm-field').style.display = '';
+    document.getElementById('dt-confirm-label').textContent   = 'Type the destination to confirm';
+    document.getElementById('dt-confirm').placeholder         = trip.destination;
+    document.getElementById('dt-expected').value              = trip.destination.toLowerCase();
+    document.getElementById('dt-delete-btn').textContent      = 'Delete Forever →';
+    document.getElementById('dt-delete-btn').disabled         = true;
+  } else {
+    // Leave-trip path — no confirmation typing needed
+    document.getElementById('dt-modal-title').textContent  = '🚪 Leave Trip';
+    document.getElementById('dt-modal-sub').innerHTML      =
+      'You will be removed from <strong>' + esc(trip.destination) +
+      '</strong>. The trip stays active for the organiser and other travellers. Your personal lists will be cleared.';
+    document.getElementById('dt-confirm-field').style.display = 'none';
+    document.getElementById('dt-expected').value               = '';
+    document.getElementById('dt-delete-btn').textContent       = 'Leave Trip →';
+    document.getElementById('dt-delete-btn').style.background  =
+      'linear-gradient(135deg,#e07020,#b05010)';
+    document.getElementById('dt-delete-btn').disabled          = false;
   }
-  document.getElementById('dt-trip-id').value   = tripId;
-  document.getElementById('dt-expected').value  = trip.destination.toLowerCase();
-  document.getElementById('dt-trip-name').textContent = trip.destination;
-  document.getElementById('dt-confirm').value   = '';
-  document.getElementById('dt-confirm').placeholder = trip.destination;
-  document.getElementById('dt-delete-btn').disabled = true;
-  document.getElementById('dt-err').textContent = '';
+
   openMd('md-delete-trip');
-  setTimeout(()=>document.getElementById('dt-confirm').focus(), 400);
+  if(isOwner) setTimeout(()=>document.getElementById('dt-confirm').focus(), 400);
 }
 
 async function confirmDeleteTrip(){
   const tripId = document.getElementById('dt-trip-id').value;
+  const role   = document.getElementById('dt-role').value;   // 'owner' | 'traveler'
   const err    = document.getElementById('dt-err');
-  if(!tripId){err.textContent='Error: no trip selected.';return;}
+  if(!tripId){ err.textContent='Error: no trip selected.'; return; }
 
-  const db=wDB();
-  const trip=db.trips[tripId];
-  if(!trip||trip.owner!==CU.username){
-    err.textContent='Only the organiser can delete a trip.';
-    return;
-  }
+  const db   = wDB();
+  const trip = db.trips[tripId];
+  if(!trip){ err.textContent='Trip not found.'; return; }
 
-  // Disable button to prevent double-click
-  const btn=document.getElementById('dt-delete-btn');
-  btn.disabled=true;
-  btn.textContent='Deleting…';
-  err.textContent='';
+  const btn = document.getElementById('dt-delete-btn');
+  btn.disabled = true;
+  btn.textContent = role === 'owner' ? 'Deleting…' : 'Leaving…';
+  err.textContent = '';
 
-  // 1. Delete from localStorage immediately
-  delete db.trips[tripId];
-  wSave(db);
+  // ─────────────────────────────────────────────────────
+  // PATH A — ORGANISER: hard-delete for everyone
+  // Database logic:
+  //   DELETE trips WHERE id = tripId            (localStorage)
+  //   DELETE /allabroad/{tripId}/data.json      (Dropbox)
+  //   DELETE /allabroad/{tripId}/meta.json      (Dropbox)
+  //   DELETE /allabroad/{tripId}/               (Dropbox folder — cascades all images)
+  //   UPDATE _index.json: remove entry trip.code (Dropbox)
+  // ─────────────────────────────────────────────────────
+  if(role === 'owner'){
+    if(trip.owner !== CU.username){
+      err.textContent = 'Only the organiser can permanently delete a trip.';
+      btn.disabled = false; btn.textContent = 'Delete Forever →';
+      return;
+    }
 
-  // 2. Delete active-day key from localStorage
-  try{ localStorage.removeItem('abt_day_'+tripId); }catch(e){}
+    // 1. Remove from localStorage
+    delete db.trips[tripId];
+    wSave(db);
 
-  // 3. Delete all IndexedDB images for this trip
-  // idb.allKeys uses openTripId — temporarily set it so keys resolve correctly
-  const prevOpenId = openTripId;
-  openTripId = tripId;
-  try{
-    const imgKeys = await idb.allKeys();
-    for(const k of imgKeys){ try{ await idb.del(k); }catch(e){} }
-  }catch(e){}
-  openTripId = prevOpenId;
+    // 2. Clear persisted active-day key
+    try{ localStorage.removeItem('abt_day_'+tripId); }catch(e){}
 
-  // 4. Delete Dropbox files (best-effort — don't block on failure)
-  try{
-    const tok = await getAccessToken();
-    if(tok){
-      const delJobs = [
-        dbx.del(tok, '/allabroad/'+tripId+'/data.json').catch(()=>{}),
-        dbx.del(tok, '/allabroad/'+tripId+'/meta.json').catch(()=>{}),
-        // Also remove the trip folder itself (Dropbox delete_v2 on a folder removes all contents)
-        dbx.del(tok, '/allabroad/'+tripId).catch(()=>{}),
-      ];
-      // Remove from code→id index
-      delJobs.push((async()=>{
+    // 3. Wipe all IndexedDB images for this trip
+    const prevId = openTripId;
+    openTripId = tripId;
+    try{
+      const imgKeys = await idb.allKeys();
+      for(const k of imgKeys){ try{ await idb.del(k); }catch(e){} }
+    }catch(e){}
+    openTripId = prevId;
+
+    // 4. Cloud: delete all files + remove from join-code index
+    try{
+      const tok = await getAccessToken();
+      if(tok){
+        await Promise.allSettled([
+          dbx.del(tok, '/allabroad/'+tripId+'/data.json').catch(()=>{}),
+          dbx.del(tok, '/allabroad/'+tripId+'/meta.json').catch(()=>{}),
+          dbx.del(tok, '/allabroad/'+tripId).catch(()=>{}),    // deletes whole folder
+          (async()=>{
+            try{
+              const r = await dbx.down(tok, indexCloudPath());
+              if(r.ok){
+                const idx = await r.json();
+                if(trip.code && idx[trip.code]){
+                  delete idx[trip.code];
+                  await dbx.up(tok, indexCloudPath(), JSON.stringify(idx));
+                }
+              }
+            }catch(e){}
+          })()
+        ]);
+      }
+    }catch(e){}
+
+    closeMd('md-delete-trip');
+    showToast('Trip deleted permanently.');
+
+  // ─────────────────────────────────────────────────────
+  // PATH B — TRAVELLER: unlink self, leave trip intact
+  // Database logic:
+  //   UPDATE trips[tripId].travelers:
+  //     REMOVE entry WHERE username = CU.username  (localStorage)
+  //   UPDATE trips[tripId].personLists:
+  //     DELETE key CU.username                     (localStorage)
+  //   ADD CU.username to trips[tripId].deletedTravelers  (cloud tombstone)
+  //   PATCH /allabroad/{tripId}/data.json:
+  //     travelers = travelers.filter(t => t.username !== CU.username)
+  //     deletedTravelers = [...deletedTravelers, CU.username]
+  //     personLists: remove CU.username key
+  //   DELETE db.trips[tripId] from this device's localStorage only
+  //     (the trip record lives on for everyone else in their own localStorage + cloud)
+  // ─────────────────────────────────────────────────────
+  } else {
+    // 1. Remove traveller from local trip record
+    if(trip.travelers) trip.travelers = trip.travelers.filter(t => t.username !== CU.username);
+    if(!trip.deletedTravelers) trip.deletedTravelers = [];
+    if(!trip.deletedTravelers.includes(CU.username)) trip.deletedTravelers.push(CU.username);
+    if(trip.personLists) delete trip.personLists[CU.username];
+    wSave(db);   // save the modified trip (still present for other users)
+
+    // 2. Now remove the trip from THIS user's view entirely
+    //    We do this by writing a "not a member" record then removing locally.
+    //    Other devices still have their own copy with this user removed.
+    delete db.trips[tripId];
+    wSave(db);
+
+    // 3. Clear persisted active-day key for this device
+    try{ localStorage.removeItem('abt_day_'+tripId); }catch(e){}
+
+    // 4. Wipe this user's images for this trip from IndexedDB
+    const prevId2 = openTripId;
+    openTripId = tripId;
+    try{
+      const imgKeys = await idb.allKeys();
+      for(const k of imgKeys){ try{ await idb.del(k); }catch(e){} }
+    }catch(e){}
+    openTripId = prevId2;
+
+    // 5. Cloud: patch data.json to remove this traveller for everyone
+    //    This ensures the organiser and others no longer see this user.
+    try{
+      const tok = await getAccessToken();
+      if(tok){
         try{
-          const idxRes = await dbx.down(tok, indexCloudPath());
-          if(idxRes.ok){
-            const index = await idxRes.json();
-            if(trip.code && index[trip.code]){
-              delete index[trip.code];
-              await dbx.up(tok, indexCloudPath(), JSON.stringify(index));
-            }
+          const res = await dbx.down(tok, '/allabroad/'+tripId+'/data.json');
+          if(res.ok){
+            const cloud = await res.json();
+            // Remove from travelers list
+            if(cloud.travelers) cloud.travelers = cloud.travelers.filter(t => t.username !== CU.username);
+            // Add to deletedTravelers tombstone (prevents re-merge on sync)
+            if(!cloud.deletedTravelers) cloud.deletedTravelers = [];
+            if(!cloud.deletedTravelers.includes(CU.username)) cloud.deletedTravelers.push(CU.username);
+            // Wipe personal lists
+            if(cloud.personLists) delete cloud.personLists[CU.username];
+            await dbx.up(tok, '/allabroad/'+tripId+'/data.json', JSON.stringify(cloud));
           }
         }catch(e){}
-      })());
-      await Promise.allSettled(delJobs);
-    }
-  }catch(e){}
+      }
+    }catch(e){}
 
-  closeMd('md-delete-trip');
-  showToast('Trip deleted.');
-
-  // If we were inside this trip, go back to dashboard
-  if(openTripId===tripId){
-    openTripId=null;
-    clearInterval(cdInterval);
+    closeMd('md-delete-trip');
+    showToast('You have left "' + trip.destination + '".');
   }
+
+  // Return to dashboard in both cases
+  if(openTripId === tripId){ openTripId = null; clearInterval(cdInterval); }
   renderDashboard();
   showScreen('dash');
 }

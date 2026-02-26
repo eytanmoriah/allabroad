@@ -231,6 +231,22 @@ html,body{height:100%;background:#0a0a1a;color:var(--text);font-family:'DM Sans'
   position:absolute;inset:0;
   background:linear-gradient(to top,rgba(10,10,26,0.93) 0%,rgba(10,10,26,0.35) 55%,rgba(10,10,26,0.08) 100%);
 }
+.tc-del-btn{
+  position:absolute;top:12px;left:12px;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,69,96,0.15);
+  border:1px solid rgba(255,69,96,0.4);
+  color:rgba(255,255,255,0.85);font-size:0.85rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;
+  transition:opacity 0.2s,background 0.2s;
+  z-index:20;
+}
+.trip-card:hover .tc-del-btn,
+.trip-card:focus-within .tc-del-btn{ opacity:1; }
+.tc-del-btn:hover{ background:rgba(255,69,96,0.55) !important; }
+/* On touch screens always show the delete button */
+@media(hover:none){ .tc-del-btn{ opacity:1; } }
 .tc-code{
   position:absolute;top:14px;right:14px;
   padding:4px 11px;
@@ -1116,6 +1132,30 @@ input, textarea, select { font-size: 16px !important; }
 </div>
 
 
+<!-- Delete Trip Modal -->
+<div class="modal-bd" id="md-delete-trip">
+  <div class="modal-sh">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="color:#ff4560;">🗑 Delete Trip</div>
+    <div class="modal-sub">This permanently deletes the trip and all its data for <strong>every traveller</strong> on all devices. This cannot be undone.</div>
+    <div id="dt-trip-name" style="margin:16px 0;padding:14px 16px;background:rgba(255,69,96,0.1);border:1px solid rgba(255,69,96,0.3);border-radius:12px;font-weight:700;font-size:1rem;text-align:center;letter-spacing:0.02em;"></div>
+    <div class="modal-field">
+      <label>Type the destination to confirm</label>
+      <input type="text" id="dt-confirm" placeholder="" autocomplete="off"
+        oninput="document.getElementById('dt-delete-btn').disabled=this.value.trim().toLowerCase()!==document.getElementById('dt-expected').value.toLowerCase()">
+    </div>
+    <input type="hidden" id="dt-trip-id" value="">
+    <input type="hidden" id="dt-expected" value="">
+    <div class="modal-err" id="dt-err"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeMd('md-delete-trip')">Cancel</button>
+      <button class="btn-primary" id="dt-delete-btn" disabled
+        style="background:linear-gradient(135deg,#ff4560,#c0002a);"
+        onclick="confirmDeleteTrip()">Delete Forever →</button>
+    </div>
+  </div>
+</div>
+
 <!-- Account Settings Modal -->
 <div class="modal-bd" id="md-account">
   <div class="modal-sh">
@@ -1506,6 +1546,7 @@ function renderDashboard(){
       <div class="tc-bg" style="background-image:url('${trip.photo||getPhoto(trip.destination)}')"></div>
       <div class="tc-ov"></div>
       <div class="tc-code">${trip.code}</div>
+      ${isOwner?`<button class="tc-del-btn" title="Delete trip" onclick="event.stopPropagation();openDeleteTrip('${trip.id}')">🗑</button>`:''}
       <div class="tc-body">
         <div class="tc-badge">${isOwner?'✦ Organiser':'✈ Traveler'}</div>
         <div class="tc-dest">${esc(trip.destination)}</div>
@@ -2180,6 +2221,98 @@ function requestNotifPermission(){
 // ════════════════════════════════════════
 // RESET TRIP
 // ════════════════════════════════════════
+function openDeleteTrip(tripId){
+  const db=wDB();
+  const trip=db.trips[tripId];
+  if(!trip||trip.owner!==CU.username){
+    showToast('Only the organiser can delete a trip.');
+    return;
+  }
+  document.getElementById('dt-trip-id').value   = tripId;
+  document.getElementById('dt-expected').value  = trip.destination.toLowerCase();
+  document.getElementById('dt-trip-name').textContent = trip.destination;
+  document.getElementById('dt-confirm').value   = '';
+  document.getElementById('dt-confirm').placeholder = trip.destination;
+  document.getElementById('dt-delete-btn').disabled = true;
+  document.getElementById('dt-err').textContent = '';
+  openMd('md-delete-trip');
+  setTimeout(()=>document.getElementById('dt-confirm').focus(), 400);
+}
+
+async function confirmDeleteTrip(){
+  const tripId = document.getElementById('dt-trip-id').value;
+  const err    = document.getElementById('dt-err');
+  if(!tripId){err.textContent='Error: no trip selected.';return;}
+
+  const db=wDB();
+  const trip=db.trips[tripId];
+  if(!trip||trip.owner!==CU.username){
+    err.textContent='Only the organiser can delete a trip.';
+    return;
+  }
+
+  // Disable button to prevent double-click
+  const btn=document.getElementById('dt-delete-btn');
+  btn.disabled=true;
+  btn.textContent='Deleting…';
+  err.textContent='';
+
+  // 1. Delete from localStorage immediately
+  delete db.trips[tripId];
+  wSave(db);
+
+  // 2. Delete active-day key from localStorage
+  try{ localStorage.removeItem('abt_day_'+tripId); }catch(e){}
+
+  // 3. Delete all IndexedDB images for this trip
+  // idb.allKeys uses openTripId — temporarily set it so keys resolve correctly
+  const prevOpenId = openTripId;
+  openTripId = tripId;
+  try{
+    const imgKeys = await idb.allKeys();
+    for(const k of imgKeys){ try{ await idb.del(k); }catch(e){} }
+  }catch(e){}
+  openTripId = prevOpenId;
+
+  // 4. Delete Dropbox files (best-effort — don't block on failure)
+  try{
+    const tok = await getAccessToken();
+    if(tok){
+      const delJobs = [
+        dbx.del(tok, '/allabroad/'+tripId+'/data.json').catch(()=>{}),
+        dbx.del(tok, '/allabroad/'+tripId+'/meta.json').catch(()=>{}),
+        // Also remove the trip folder itself (Dropbox delete_v2 on a folder removes all contents)
+        dbx.del(tok, '/allabroad/'+tripId).catch(()=>{}),
+      ];
+      // Remove from code→id index
+      delJobs.push((async()=>{
+        try{
+          const idxRes = await dbx.down(tok, indexCloudPath());
+          if(idxRes.ok){
+            const index = await idxRes.json();
+            if(trip.code && index[trip.code]){
+              delete index[trip.code];
+              await dbx.up(tok, indexCloudPath(), JSON.stringify(index));
+            }
+          }
+        }catch(e){}
+      })());
+      await Promise.allSettled(delJobs);
+    }
+  }catch(e){}
+
+  closeMd('md-delete-trip');
+  showToast('Trip deleted.');
+
+  // If we were inside this trip, go back to dashboard
+  if(openTripId===tripId){
+    openTripId=null;
+    clearInterval(cdInterval);
+  }
+  renderDashboard();
+  showScreen('dash');
+}
+
 async function resetApp(){
   if(!confirm('Reset this trip\'s data?\n\nThis will permanently clear all itinerary, lists, notes and tickets on ALL devices. Cannot be undone.'))return;
   if(!confirm('Are you sure?'))return;

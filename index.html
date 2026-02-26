@@ -71,6 +71,8 @@ html,body{height:100%;background:#0a0a1a;color:var(--text);font-family:'DM Sans'
   font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;
   color:var(--dim);margin-bottom:40px;text-align:center;
 }
+.auth-brand-col { display: none; }
+.auth-form-col  { display: flex; flex-direction: column; align-items: center; width: 100%; }
 .auth-card{
   width:100%;max-width:400px;
   background:rgba(255,255,255,0.07);
@@ -135,7 +137,13 @@ html,body{height:100%;background:#0a0a1a;color:var(--text);font-family:'DM Sans'
 /* ═══════════════════════════════════════════
    ② DASHBOARD SCREEN
 ═══════════════════════════════════════════ */
-#s-dash{background:#0a0a1a;}
+#s-dash{background:#0a0a1a;display:flex;flex-direction:column;align-items:stretch;}
+.dash-inner{
+  display:flex;flex-direction:column;
+  width:100%;max-width:860px;
+  margin:0 auto;
+  flex:1;min-height:0;
+}
 .dash-head{
   position:relative;z-index:10;
   padding:calc(var(--sat)+20px) 20px 0;
@@ -205,6 +213,7 @@ html,body{height:100%;background:#0a0a1a;color:var(--text);font-family:'DM Sans'
 .trips-scroll::-webkit-scrollbar{display:none;}
 
 /* Trip cards */
+.trips-inner{width:100%;}
 .trip-card{
   position:relative;border-radius:20px;overflow:hidden;
   margin-bottom:14px;height:190px;
@@ -696,29 +705,53 @@ input, textarea, select { font-size: 16px !important; }
 /* ── ≥ 901px: desktop ── */
 @media (min-width: 901px) {
   :root { --cd-h: 72px; }
+  .dash-inner   { max-width: 960px; }
   .dash-head    { padding-left: 40px; padding-right: 40px; }
   .dash-lbl     { padding: 0 40px; }
   .trips-scroll { padding: 0 40px calc(var(--sab) + 32px); }
-  .scroll-wrap  { max-width: 900px; padding-left: max(40px, var(--sal)); padding-right: max(40px, var(--sar)); }
+  .scroll-wrap  { max-width: 960px; padding-left: max(40px, var(--sal)); padding-right: max(40px, var(--sar)); }
   .mem-grid     { grid-template-columns: repeat(5, 1fr); }
-  .tab-bar      { max-width: 900px; left: 50%; transform: translateX(-50%); }
+  .tab-bar      { max-width: 960px; left: 50%; transform: translateX(-50%); }
   #cdBar        { padding-left: max(40px, var(--sal)); padding-right: max(40px, var(--sar)); }
-  .trip-card    { height: 230px; }
+  .trip-card    { height: 230px; margin-bottom: 0; }
   .modal-sh     { border-radius: 24px; max-width: 580px; }
+  .auth-card    { max-width: 460px; }
+  /* Two-column trip card grid on tablet/desktop */
+  .trips-inner  { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .dash-empty   { grid-column: 1 / -1; }
 }
 
 /* ── ≥ 1201px: wide desktop ── */
 @media (min-width: 1201px) {
-  .dash-head    { max-width: 1000px; margin: 0 auto; padding-left: 48px; padding-right: 48px; }
-  .dash-lbl     { max-width: 1000px; margin: 0 auto; padding-left: 48px; }
-  .trips-scroll { align-items: center; }
-  #trips-list   { max-width: 1000px; width: 100%; }
-  .scroll-wrap  { max-width: 960px; padding-left: 48px; padding-right: 48px; }
-  .tab-bar      { max-width: 960px; left: 50%; transform: translateX(-50%); border-radius: 20px 20px 0 0; }
-  #cdBar        { padding-left: max(48px, var(--sal)); padding-right: max(48px, var(--sar)); }
-  .mem-grid     { grid-template-columns: repeat(5, 1fr); }
-  .modal-sh     { border-radius: 24px; max-width: 640px; }
-  .trip-card    { height: 240px; }
+  .dash-inner   { max-width: 1200px; }
+  .dash-head    { padding-left: 56px; padding-right: 56px; }
+  .dash-lbl     { padding: 0 56px; }
+  .trips-scroll { padding: 0 56px calc(var(--sab) + 40px); }
+  #trips-list   { width: 100%; }
+  .scroll-wrap  { max-width: 1100px; padding-left: 56px; padding-right: 56px; }
+  .tab-bar      { max-width: 1100px; left: 50%; transform: translateX(-50%); border-radius: 20px 20px 0 0; }
+  #cdBar        { padding-left: max(56px, var(--sal)); padding-right: max(56px, var(--sar)); }
+  .mem-grid     { grid-template-columns: repeat(6, 1fr); }
+  .modal-sh     { border-radius: 24px; max-width: 680px; }
+  .trip-card    { height: 250px; }
+  .auth-card    { max-width: 500px; }
+  /* Three-column grid on large desktop */
+  .trips-inner  { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  /* Desktop auth: two-column layout */
+  #s-auth       { flex-direction: row; align-items: stretch; }
+  .auth-brand-col {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; padding: 60px 48px;
+    background: linear-gradient(160deg, rgba(200,169,110,0.12) 0%, transparent 60%);
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .auth-form-col {
+    flex: 0 0 520px; display: flex; align-items: center;
+    justify-content: center; padding: 60px 48px;
+  }
+  .auth-bg-word { display: none; }
+  .auth-logo    { font-size: 3.5rem; text-align: left; margin-bottom: 12px; }
+  .auth-tagline-desktop { display: block; }
 }
 
 /* ── Landscape on small phones ── */
@@ -751,6 +784,19 @@ input, textarea, select { font-size: 16px !important; }
      ① AUTH
 ══════════════════════════════════════════ -->
 <div id="s-auth" class="screen active">
+  <!-- Desktop: brand column (hidden on mobile) -->
+  <div class="auth-brand-col">
+    <div class="auth-logo" style="font-size:4rem;">All<span>abroad</span></div>
+    <div class="auth-tag" style="font-size:1rem;opacity:0.7;margin-top:12px;text-align:left;">Plan together. Travel further.</div>
+    <p style="margin-top:32px;opacity:0.45;font-size:0.9rem;line-height:1.7;max-width:340px;">Create trip itineraries, sync packing lists, and share everything in real time — all from one place.</p>
+    <div style="margin-top:48px;display:flex;gap:16px;flex-wrap:wrap;">
+      <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px 18px;font-size:0.8rem;opacity:0.7;">✈️ Multi-trip support</div>
+      <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px 18px;font-size:0.8rem;opacity:0.7;">☁️ Cloud sync</div>
+      <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px 18px;font-size:0.8rem;opacity:0.7;">👥 Group planning</div>
+    </div>
+  </div>
+  <!-- Form column (mobile: full width, desktop: right side) -->
+  <div class="auth-form-col">
   <div class="auth-bg-word">Allabroad</div>
   <div class="auth-logo">All<span>abroad</span></div>
   <div class="auth-tag">Plan together. Travel further.</div>
@@ -796,12 +842,14 @@ input, textarea, select { font-size: 16px !important; }
     <div class="auth-or">— or —</div>
     <button class="btn-ghost" onclick="doGuest()">Continue as Guest</button>
   </div>
+  </div><!-- /auth-form-col -->
 </div>
 
 <!-- ══════════════════════════════════════════
      ② DASHBOARD
 ══════════════════════════════════════════ -->
 <div id="s-dash" class="screen">
+  <div class="dash-inner">
   <div class="dash-head">
     <div class="dash-topbar">
       <div class="dash-logo">All<span>abroad</span></div>
@@ -820,6 +868,7 @@ input, textarea, select { font-size: 16px !important; }
   </div>
   <div class="dash-lbl" id="dash-lbl">Your Trips</div>
   <div class="trips-scroll"><div id="trips-list" class="trips-inner"></div></div>
+  </div><!-- /dash-inner -->
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -1242,17 +1291,43 @@ function setAuthTab(t){
   document.getElementById('auth-login').style.display  = t==='login' ?'':'none';
   document.getElementById('auth-signup').style.display = t==='signup'?'':'none';
 }
-function doLogin(){
-  const db=wDB(), u=document.getElementById('li-user').value.trim().toLowerCase(), p=document.getElementById('li-pass').value;
+async async function doLogin(){
+  const u=document.getElementById('li-user').value.trim().toLowerCase();
+  const p=document.getElementById('li-pass').value;
   const err=document.getElementById('li-err');
   if(!u||!p){err.textContent='Please fill in all fields.';return;}
-  if(!db.users[u]){err.textContent='No account found with that email.';return;}
+  const db=wDB();
+
+  // If user not in local DB, try fetching from Dropbox (cross-device login)
+  if(!db.users[u]){
+    err.textContent='🔍 Looking up account…';
+    try{
+      const tok=await getAccessToken();
+      if(tok){
+        const res=await dbx.down(tok,userCloudPath(u));
+        if(res.ok){
+          const rec=await res.json();
+          // Validate password before caching locally
+          if(rec.password!==btoa(p)){err.textContent='Incorrect password.';return;}
+          db.users[u]=rec;
+          wSave(db);
+          err.textContent='';
+          CU={username:u}; saveSession(u);
+          renderDashboard(); showScreen('dash');
+          return;
+        }
+      }
+    }catch(e){}
+    err.textContent='No account found with that email.';
+    return;
+  }
+
   if(db.users[u].password!==btoa(p)){err.textContent='Incorrect password.';return;}
   err.textContent='';
   CU={username:u}; saveSession(u);
   renderDashboard(); showScreen('dash');
 }
-function doSignup(){
+async function doSignup(){
   const db=wDB();
   const fname = document.getElementById('su-fname').value.trim();
   const lname  = document.getElementById('su-lname').value.trim();
@@ -1278,6 +1353,13 @@ function doSignup(){
   wSave(db);
   err.textContent='';
   CU={username:email}; saveSession(email);
+  // Upload user record to Dropbox so login works on any device
+  (async()=>{
+    try{
+      const tok=await getAccessToken();
+      if(tok) await dbx.up(tok,userCloudPath(email),JSON.stringify(db.users[email]));
+    }catch(e){}
+  })();
   renderDashboard(); showScreen('dash');
 }
 function doGuest(){
@@ -1349,6 +1431,8 @@ function changePassword(){
   if(np!==np2){err.textContent='New passwords do not match.';return;}
   rec.password=btoa(np);
   wSave(db);
+  // Sync updated password to cloud
+  (async()=>{try{const tok=await getAccessToken();if(tok)await dbx.up(tok,userCloudPath(u),JSON.stringify(rec));}catch(e){}})();
   err.style.color='#4caf50';
   err.textContent='Password updated successfully ✅';
   document.getElementById('cp-current').value='';
@@ -1484,6 +1568,23 @@ function createTrip(){
   wSave(db);
   closeMd('md-new-trip');
   renderDashboard();
+  // Push trip metadata and code index to cloud so joiners on other devices can find it
+  (async()=>{
+    try{
+      const tok=await getAccessToken();
+      if(!tok) return;
+      // Write metadata (everything except personLists/state/tickets)
+      const meta={id,destination:dest,dates,code,photo:db.trips[id].photo,
+        owner:CU.username,travelDate:db.trips[id].travelDate,
+        tripDays:db.trips[id].tripDays,createdAt:db.trips[id].createdAt};
+      await dbx.up(tok,tripMetaPath(id),JSON.stringify(meta));
+      // Update global code→id index
+      let index={};
+      try{const r=await dbx.down(tok,indexCloudPath());if(r.ok)index=await r.json();}catch(e){}
+      index[code]=id;
+      await dbx.up(tok,indexCloudPath(),JSON.stringify(index));
+    }catch(e){}
+  })();
   setTimeout(()=>openTrip(id),200);
 }
 
@@ -1524,25 +1625,61 @@ function openJoinTrip(){
   openMd('md-join-trip');
   setTimeout(()=>document.getElementById('jt-code').focus(),400);
 }
-function joinTrip(){
+async function joinTrip(){
   const code=document.getElementById('jt-code').value.trim().toUpperCase();
   const err=document.getElementById('jt-err');
   if(code.length<4){err.textContent='Please enter a valid code.';return;}
+  err.textContent='🔍 Searching…';
+
   const db=wDB();
-  const trip=Object.values(db.trips).find(t=>t.code===code);
-  if(!trip){err.textContent='No trip found with that code.';return;}
+  // 1. Try local first (same device, already has the trip)
+  let trip=Object.values(db.trips).find(t=>t.code===code);
+
+  // 2. If not found locally, search Dropbox via the global index
+  if(!trip){
+    try{
+      const tok=await getAccessToken();
+      if(!tok){err.textContent='Could not connect to cloud. Check your connection.';return;}
+      // Fetch the global code→tripId index
+      const idxRes=await dbx.down(tok,indexCloudPath());
+      if(!idxRes.ok){err.textContent='No trip found with that code.';return;}
+      const index=await idxRes.json();
+      const tripId=index[code];
+      if(!tripId){err.textContent='No trip found with that code.';return;}
+      // Fetch trip metadata
+      const metaRes=await dbx.down(tok,tripMetaPath(tripId));
+      if(!metaRes.ok){err.textContent='Trip found but metadata missing — ask the organiser to open the trip once.';return;}
+      const meta=await metaRes.json();
+      // Reconstruct local trip record
+      db.trips[tripId]={
+        ...meta,
+        travelers:[],
+        state:{itinerary:[],notes:'',memories:[]},
+        tickets:[],deletedIds:[],deletedTravelers:[],
+        personLists:{}
+      };
+      wSave(db);
+      trip=db.trips[tripId];
+    }catch(e){err.textContent='Network error — please try again.';return;}
+  }
+
+  err.textContent='';
   const alreadyIn=trip.travelers?.some(t=>t.username===CU.username);
   if(alreadyIn){err.textContent="You're already in this trip!";return;}
   if(!trip.travelers) trip.travelers=[];
   trip.travelers.push({username:CU.username,role:'traveler',joinedAt:Date.now()});
-  // Create their prep list
   if(!trip.personLists) trip.personLists={};
   if(!trip.personLists[CU.username]) trip.personLists[CU.username]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};
   wSave(db);
   closeMd('md-join-trip');
   showToast(`Joined "${trip.destination}"! 🎉`);
   renderDashboard();
-  setTimeout(()=>openTrip(trip.id),600);
+  // Open trip, then pull full state from cloud, then push our membership
+  setTimeout(async ()=>{
+    openTrip(trip.id);
+    await syncFromCloud();   // pull itinerary/notes/etc from owner's cloud file
+    await syncToCloud();     // write our username into the cloud travelers array
+  }, 600);
 }
 
 // ════════════════════════════════════════
@@ -1574,6 +1711,8 @@ function openTrip(id){
   deletedTravelers=TRIP.deletedTravelers||[];
   tempImg    = null;
   activeDay  = 0; currentTab=0; confettiFired=false;
+  // Restore last active day for this trip
+  try{const d=localStorage.getItem('abt_day_'+id);if(d!==null){const n=parseInt(d);if(!isNaN(n)&&n>=0)activeDay=n;}}catch(e){}
 
   // Ensure current user has a traveler entry + prep list
   if(!travelers.find(t=>t.username===CU.username)){
@@ -1603,6 +1742,8 @@ function openTrip(id){
   if(TRAVEL_DATE){ checkArrived(); updateCD(); cdInterval=setInterval(updateCD,1000); }
   else { document.getElementById('cdDays').textContent='--'; document.getElementById('cdHours').textContent='--'; document.getElementById('cdMins').textContent='--'; }
 
+  // Save initial state to localStorage so sync merges correctly
+  saveTripLocal();
   // Weather — fetch for destination
   fetchWeather(TRIP.destination);
   history.replaceState(null,'','#trip/'+id+'/'+currentTab);
@@ -1683,6 +1824,9 @@ async function getAccessToken(){
 function hasDbxCredentials(){ return !!(localStorage.getItem('dbx_key')&&localStorage.getItem('dbx_secret')&&localStorage.getItem('dbx_refresh')); }
 function tripCloudPath(){ return '/allabroad/'+(openTripId||'trip')+'/data.json'; }
 function tripImgPath(id){ return '/allabroad/'+(openTripId||'trip')+'/images/'+id; }
+function indexCloudPath(){ return '/allabroad/_index.json'; }
+function userCloudPath(email){ return '/allabroad/_users/'+encodeURIComponent(email)+'.json'; }
+function tripMetaPath(id){ return '/allabroad/'+id+'/meta.json'; }
 
 // Merge helpers
 function mergeById(a,b){
@@ -1728,7 +1872,10 @@ async function syncToCloud(){
     const localKeys=new Set((await idb.allKeys()).map(String));
     for(const item of [...mT,...mM]){if(localKeys.has(String(item.id))){const img=await idb.get(item.id);if(img)try{await dbx.up(tok,tripImgPath(item.id),img);}catch(e){}}}
     tickets=mT;state.memories=mM;state.itinerary=mI;travelers=mTrav;personLists=mergedPL;
-    if(!travelers.find(t=>t.username===activeTraveler)) activeTraveler=travelers[0].username;
+    // Preserve current user's lists after merge
+    if(CU&&!personLists[CU.username]) personLists[CU.username]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};
+    if(CU&&travelers.find(t=>t.username===CU.username)) activeTraveler=CU.username;
+    else if(!travelers.find(t=>t.username===activeTraveler)) activeTraveler=travelers[0]?.username||CU?.username;
     saveTripLocal();render();await renderTickets();await renderMemories();renderTravelerSettings();
     setStatus('☁️ Synced ✅ '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
   }catch(e){setStatus('☁️ Offline ❌');}
@@ -1746,14 +1893,18 @@ async function syncFromCloud(){
     deletedIds=[...new Set([...deletedIds,...(data.deletedIds||[])].map(String))];
     deletedTravelers=[...new Set([...deletedTravelers,...(data.deletedTravelers||[])])];
     const dead=new Set(deletedIds);
-    if(data.itinerary) state.itinerary=mergeById(data.itinerary,state.itinerary);
+    if(data.itinerary) state.itinerary=mergeById(data.itinerary,state.itinerary).filter(e=>!dead.has(String(e.id)));
     if(data.notes) state.notes=data.notes;
     tickets=mergeById(data.tickets||[],tickets);
     state.memories=mergeById(data.memories||[],state.memories).filter(m=>!dead.has(String(m.id)));
     if(data.travelers?.length) travelers=mergeTravelers(data.travelers,travelers);
     if(data.personLists){Object.keys(data.personLists).forEach(u=>{if(!personLists[u])personLists[u]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};const remote=data.personLists[u];const mSD=[...new Set([...(personLists[u].shoppingDeleted||[]),...(remote.shoppingDeleted||[])].map(String))];personLists[u]={shopping:mergeList(remote.shopping||[],personLists[u].shopping||[],mSD),packing:mergeById(remote.packing||[],personLists[u].packing||[]),ukShopping:mergeById(remote.ukShopping||[],personLists[u].ukShopping||[]),shoppingDeleted:mSD};});}
     travelers.forEach(t=>{if(!personLists[t.username])personLists[t.username]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};});
-    if(!travelers.find(t=>t.username===activeTraveler)) activeTraveler=travelers[0].username;
+    // Always ensure current user's lists exist after merge
+    if(CU&&!personLists[CU.username]) personLists[CU.username]={shopping:[],packing:[],ukShopping:[],shoppingDeleted:[]};
+    // Keep activeTraveler as current user if they're still a member
+    if(CU&&travelers.find(t=>t.username===CU.username)) activeTraveler=CU.username;
+    else if(!travelers.find(t=>t.username===activeTraveler)) activeTraveler=travelers[0]?.username||CU?.username;
     const localKeys=new Set((await idb.allKeys()).map(String));
     for(const id of [...tickets.map(t=>t.id),...state.memories.map(m=>m.id)]){if(!localKeys.has(String(id))){try{const r=await dbx.down(tok,tripImgPath(id));if(r.ok){const txt=await r.text();if(txt.startsWith('data:'))await idb.save(id,txt);}}catch(e){}}}
     saveTripLocal();render();await renderTickets();await renderMemories();renderTravelerSettings();
@@ -1771,7 +1922,12 @@ function buildDayTabs(){
   sel.innerHTML=TRIP_DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join('');
   sel.value=String(activeDay);
 }
-function setDay(i){activeDay=i;buildDayTabs();renderItinerary();}
+function setDay(i){
+  activeDay=i;
+  buildDayTabs();renderItinerary();
+  // Persist active day so page refresh restores to same day
+  if(openTripId) try{localStorage.setItem('abt_day_'+openTripId,String(i));}catch(e){}
+}
 function renderItinerary(){
   const list=document.getElementById('itineraryList');if(!list)return;
   const evs=(state.itinerary||[]).filter(e=>Number(e.day)===activeDay).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
@@ -2101,7 +2257,11 @@ openIDB().then(async ()=>{
       openTrip(parts[1]);
       const tab=parseInt(parts[2]||'0')||0;
       if(tab>0)switchTab(tab,true);
-      setTimeout(syncFromCloud,1500);
+      // Sync from cloud: immediately if trip appears empty, otherwise after 1s
+      const hasLocalData = (state.itinerary&&state.itinerary.length>0)||
+                           (tickets&&tickets.length>0)||
+                           (state.notes&&state.notes.trim());
+      setTimeout(syncFromCloud, hasLocalData ? 2500 : 100);
       return;
     }
   }

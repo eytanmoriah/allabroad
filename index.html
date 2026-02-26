@@ -1431,46 +1431,280 @@ let openTripId = null;
 // ════════════════════════════════════════
 // DESTINATION PHOTOS
 // ════════════════════════════════════════
+// ════════════════════════════════════════
+// DESTINATION PHOTOS
+// Organised into four tiers, all resolved by getPhoto():
+//   1. Specific cities & landmarks
+//   2. Countries → capital/iconic landmark image
+//   3. Cruise keyword → cruise ship
+//   4. Easter eggs (space, fictional, unusual)
+//   5. High-quality travel fallback
+// ════════════════════════════════════════
 const DEST_PHOTOS = {
-  tokyo:     'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1600&q=80',
-  japan:     'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1600&q=80',
-  paris:     'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1600&q=80',
-  france:    'https://images.unsplash.com/photo-1431274172761-fca41d930114?w=1600&q=80',
-  london:    'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80',
-  uk:        'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80',
-  rome:      'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1600&q=80',
-  italy:     'https://images.unsplash.com/photo-1555992336-03a23c7b20ee?w=1600&q=80',
-  amalfi:    'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?w=1600&q=80',
-  barcelona: 'https://images.unsplash.com/photo-1511527661048-7fe73d85e9a4?w=1600&q=80',
-  spain:     'https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=1600&q=80',
-  bali:      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1600&q=80',
-  maldives:  'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1600&q=80',
-  dubai:     'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1600&q=80',
-  iceland:   'https://images.unsplash.com/photo-1476610182048-b716b8518aae?w=1600&q=80',
-  patagonia: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=1600&q=80',
-  morocco:   'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1600&q=80',
-  amsterdam: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1600&q=80',
-  bangkok:   'https://images.unsplash.com/photo-1508009603885-50cf7c8dd0d5?w=1600&q=80',
-  thailand:  'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1600&q=80',
-  sydney:    'https://images.unsplash.com/photo-1524293581917-878a6d017c71?w=1600&q=80',
-  australia: 'https://images.unsplash.com/photo-1494233892892-84542a694e72?w=1600&q=80',
-  newyork:   'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',
-  nyc:       'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',
-  santorini: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1600&q=80',
-  greece:    'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&q=80',
-  lisbon:    'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1600&q=80',
-  prague:    'https://images.unsplash.com/photo-1540932239986-30128078f3c5?w=1600&q=80',
-  singapore: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1600&q=80',
-  default:   'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1600&q=80'
+
+  // ── Specific cities & iconic landmarks ─────────────────────────────────────
+  tokyo:        'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1600&q=80',
+  kyoto:        'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1600&q=80',
+  osaka:        'https://images.unsplash.com/photo-1590559899731-a382839e5549?w=1600&q=80',
+  paris:        'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1600&q=80',
+  london:       'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80',
+  rome:         'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1600&q=80',
+  florence:     'https://images.unsplash.com/photo-1541370976299-4d24ebbc9077?w=1600&q=80',
+  venice:       'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=1600&q=80',
+  milan:        'https://images.unsplash.com/photo-1513581166391-887a96ddeafd?w=1600&q=80',
+  amalfi:       'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?w=1600&q=80',
+  barcelona:    'https://images.unsplash.com/photo-1511527661048-7fe73d85e9a4?w=1600&q=80',
+  madrid:       'https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=1600&q=80',
+  seville:      'https://images.unsplash.com/photo-1559060017-445fb9722b3b?w=1600&q=80',
+  amsterdam:    'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1600&q=80',
+  dubai:        'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1600&q=80',
+  abudhabi:     'https://images.unsplash.com/photo-1526779259212-939e64788e3c?w=1600&q=80',
+  singapore:    'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1600&q=80',
+  bangkok:      'https://images.unsplash.com/photo-1508009603885-50cf7c8dd0d5?w=1600&q=80',
+  chiangmai:    'https://images.unsplash.com/photo-1580746738099-b2d2c0ce0e6e?w=1600&q=80',
+  bali:         'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1600&q=80',
+  ubud:         'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1600&q=80',
+  maldives:     'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1600&q=80',
+  sydney:       'https://images.unsplash.com/photo-1524293581917-878a6d017c71?w=1600&q=80',
+  melbourne:    'https://images.unsplash.com/photo-1514395462725-fb4566210144?w=1600&q=80',
+  newyork:      'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',
+  nyc:          'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',
+  manhattan:    'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',
+  losangeles:   'https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=1600&q=80',
+  miami:        'https://images.unsplash.com/photo-1514214246283-d427a95c5d2f?w=1600&q=80',
+  chicago:      'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80',
+  lasvegas:     'https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?w=1600&q=80',
+  sanfrancisco: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1600&q=80',
+  santorini:    'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1600&q=80',
+  mykonos:      'https://images.unsplash.com/photo-1601581875309-fafbf2d3ed3a?w=1600&q=80',
+  athens:       'https://images.unsplash.com/photo-1555993539-1732b0258235?w=1600&q=80',
+  lisbon:       'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1600&q=80',
+  porto:        'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1600&q=80',
+  prague:       'https://images.unsplash.com/photo-1540932239986-30128078f3c5?w=1600&q=80',
+  vienna:       'https://images.unsplash.com/photo-1516550893923-42d28e5677af?w=1600&q=80',
+  budapest:     'https://images.unsplash.com/photo-1565426873118-a17ed65d74b9?w=1600&q=80',
+  zurich:       'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1600&q=80',
+  geneva:       'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1600&q=80',
+  reykjavik:    'https://images.unsplash.com/photo-1476610182048-b716b8518aae?w=1600&q=80',
+  capetown:     'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1600&q=80',
+  marrakech:    'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1600&q=80',
+  cairo:        'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1600&q=80',
+  nairobi:      'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',
+  istanbul:     'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1600&q=80',
+  jerusalem:    'https://images.unsplash.com/photo-1543832923-44667a44c804?w=1600&q=80',
+  telaviv:      'https://images.unsplash.com/photo-1544144532-c4148b2a0a47?w=1600&q=80',
+  bogota:       'https://images.unsplash.com/photo-1597516368665-61ff1d5e9f97?w=1600&q=80',
+  buenosaires:  'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=1600&q=80',
+  riojaneiro:   'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1600&q=80',
+  rio:          'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1600&q=80',
+  lima:         'https://images.unsplash.com/photo-1531968455001-5c5272a41129?w=1600&q=80',
+  cusco:        'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=1600&q=80',
+  patagonia:    'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=1600&q=80',
+  havana:       'https://images.unsplash.com/photo-1520116468816-95b69f847357?w=1600&q=80',
+  mexicocity:   'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=1600&q=80',
+  cancun:       'https://images.unsplash.com/photo-1510097467424-192d713fd8b2?w=1600&q=80',
+  seoul:        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1600&q=80',
+  beijing:      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1600&q=80',
+  shanghai:     'https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?w=1600&q=80',
+  hongkong:     'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=1600&q=80',
+  taipei:       'https://images.unsplash.com/photo-1470004914212-05527e49370b?w=1600&q=80',
+  hanoi:        'https://images.unsplash.com/photo-1555921015-5532091f6026?w=1600&q=80',
+  hochiminh:    'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600&q=80',
+  saigon:       'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600&q=80',
+  mumbai:       'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=1600&q=80',
+  delhi:        'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1600&q=80',
+  jaipur:       'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1600&q=80',
+  agra:         'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600&q=80',
+  goa:          'https://images.unsplash.com/photo-1582972236019-ea4af5ffe587?w=1600&q=80',
+  kathmandu:    'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1600&q=80',
+  colombo:      'https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=1600&q=80',
+  moscow:       'https://images.unsplash.com/photo-1513326738677-b964603b136d?w=1600&q=80',
+  stpetersburg: 'https://images.unsplash.com/photo-1548834925-e48f8a27b8f3?w=1600&q=80',
+  stockholm:    'https://images.unsplash.com/photo-1509356843151-3e7d96241e11?w=1600&q=80',
+  copenhagen:   'https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?w=1600&q=80',
+  oslo:         'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1600&q=80',
+  helsinki:     'https://images.unsplash.com/photo-1559566509-0bcd0c4e1e36?w=1600&q=80',
+  berlin:       'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1600&q=80',
+  munich:       'https://images.unsplash.com/photo-1595867818082-083862f3d630?w=1600&q=80',
+  brussels:     'https://images.unsplash.com/photo-1546461049-47fb5e7edcd3?w=1600&q=80',
+  doha:         'https://images.unsplash.com/photo-1568694031084-f8e6c07d6f47?w=1600&q=80',
+  riyadh:       'https://images.unsplash.com/photo-1568694031084-f8e6c07d6f47?w=1600&q=80',
+  naples:       'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1600&q=80',
+  cinque:       'https://images.unsplash.com/photo-1520342868574-5fa3804e551c?w=1600&q=80',
+  positano:     'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?w=1600&q=80',
+  tulum:        'https://images.unsplash.com/photo-1510097467424-192d713fd8b2?w=1600&q=80',
+  phuket:       'https://images.unsplash.com/photo-1508009603885-50cf7c8dd0d5?w=1600&q=80',
+  krakow:       'https://images.unsplash.com/photo-1567543756977-38d30b4e69bb?w=1600&q=80',
+  warsaw:       'https://images.unsplash.com/photo-1567543756977-38d30b4e69bb?w=1600&q=80',
+  bucharest:    'https://images.unsplash.com/photo-1598300188904-6287d538d054?w=1600&q=80',
+  sofia:        'https://images.unsplash.com/photo-1598300188904-6287d538d054?w=1600&q=80',
+
+  // ── Countries → capital / iconic landmark ──────────────────────────────────
+  // Task 1: country keyword maps to the country's most iconic image
+  japan:        'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1600&q=80',  // Mt Fuji
+  france:       'https://images.unsplash.com/photo-1431274172761-fca41d930114?w=1600&q=80',  // Eiffel Tower
+  england:      'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80',  // Big Ben
+  uk:           'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80',  // Big Ben
+  britain:      'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80',  // Big Ben
+  unitedkingdom:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1600&q=80',  // Big Ben
+  italy:        'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1600&q=80',      // Colosseum
+  spain:        'https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=1600&q=80',      // Sagrada Familia
+  greece:       'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1600&q=80',   // Santorini
+  portugal:     'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1600&q=80',      // Lisbon
+  germany:      'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=1600&q=80',      // Berlin
+  austria:      'https://images.unsplash.com/photo-1516550893923-42d28e5677af?w=1600&q=80',   // Vienna
+  switzerland:  'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1600&q=80',   // Alps
+  netherlands:  'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1600&q=80',   // Amsterdam canals
+  holland:      'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1600&q=80',   // Amsterdam canals
+  belgium:      'https://images.unsplash.com/photo-1546461049-47fb5e7edcd3?w=1600&q=80',      // Brussels
+  czechia:      'https://images.unsplash.com/photo-1540932239986-30128078f3c5?w=1600&q=80',   // Prague
+  czech:        'https://images.unsplash.com/photo-1540932239986-30128078f3c5?w=1600&q=80',   // Prague
+  hungary:      'https://images.unsplash.com/photo-1565426873118-a17ed65d74b9?w=1600&q=80',   // Budapest
+  poland:       'https://images.unsplash.com/photo-1567543756977-38d30b4e69bb?w=1600&q=80',   // Krakow
+  turkey:       'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1600&q=80',   // Istanbul
+  sweden:       'https://images.unsplash.com/photo-1509356843151-3e7d96241e11?w=1600&q=80',   // Stockholm
+  norway:       'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1600&q=80',   // Fjords
+  denmark:      'https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?w=1600&q=80',   // Copenhagen
+  finland:      'https://images.unsplash.com/photo-1476610182048-b716b8518aae?w=1600&q=80',   // Northern Lights
+  iceland:      'https://images.unsplash.com/photo-1476610182048-b716b8518aae?w=1600&q=80',   // Northern Lights
+  russia:       'https://images.unsplash.com/photo-1513326738677-b964603b136d?w=1600&q=80',   // Moscow Red Square
+  thailand:     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1600&q=80',      // Temple
+  vietnam:      'https://images.unsplash.com/photo-1555921015-5532091f6026?w=1600&q=80',      // Hanoi
+  indonesia:    'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1600&q=80',   // Bali
+  india:        'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600&q=80',   // Taj Mahal
+  nepal:        'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1600&q=80',      // Himalayas
+  china:        'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1600&q=80',   // Great Wall
+  korea:        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1600&q=80',   // Seoul
+  malaysia:     'https://images.unsplash.com/photo-1506048636823-8b8a4e39c57c?w=1600&q=80',   // Petronas Towers
+  philippines:  'https://images.unsplash.com/photo-1518509562904-e7ef99cdcb63?w=1600&q=80',   // Palawan
+  cambodia:     'https://images.unsplash.com/photo-1508159452718-d22f6734a236?w=1600&q=80',   // Angkor Wat
+  myanmar:      'https://images.unsplash.com/photo-1508159452718-d22f6734a236?w=1600&q=80',   // Bagan
+  srilanka:     'https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=1600&q=80',      // Colombo
+  australia:    'https://images.unsplash.com/photo-1494233892892-84542a694e72?w=1600&q=80',   // Opera House
+  newzealand:   'https://images.unsplash.com/photo-1507699622108-4be3abd695ad?w=1600&q=80',   // Fiordland
+  egypt:        'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1600&q=80',   // Pyramids
+  morocco:      'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1600&q=80',   // Marrakech
+  kenya:        'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',      // Safari / savanna
+  tanzania:     'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',      // Serengeti
+  southafrica:  'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1600&q=80',   // Table Mountain
+  ethiopia:     'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',      // Africa
+  ghana:        'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',      // Africa
+  nigeria:      'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',      // Africa
+  senegal:      'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',      // Africa
+  israel:       'https://images.unsplash.com/photo-1543832923-44667a44c804?w=1600&q=80',      // Jerusalem
+  jordan:       'https://images.unsplash.com/photo-1561651188-d207bbec4ec3?w=1600&q=80',      // Petra
+  uae:          'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1600&q=80',   // Dubai skyline
+  saudiarabia:  'https://images.unsplash.com/photo-1568694031084-f8e6c07d6f47?w=1600&q=80',   // Riyadh
+  qatar:        'https://images.unsplash.com/photo-1568694031084-f8e6c07d6f47?w=1600&q=80',   // Doha
+  iran:         'https://images.unsplash.com/photo-1569254103882-83e3e4acf5f9?w=1600&q=80',   // Isfahan
+  pakistan:     'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1600&q=80',      // Mountains
+  usa:          'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1600&q=80',   // Golden Gate (iconic)
+  america:      'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80',   // NYC
+  canada:       'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80',   // Banff / Rockies
+  mexico:       'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=1600&q=80',   // Mexico City
+  cuba:         'https://images.unsplash.com/photo-1520116468816-95b69f847357?w=1600&q=80',   // Havana
+  brazil:       'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1600&q=80',   // Rio / Christ statue
+  argentina:    'https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=1600&q=80',   // Buenos Aires
+  colombia:     'https://images.unsplash.com/photo-1597516368665-61ff1d5e9f97?w=1600&q=80',   // Bogota
+  peru:         'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=1600&q=80',   // Machu Picchu
+  chile:        'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=1600&q=80',   // Patagonia
+
+  // ── Cruise keyword (Task 2) ─────────────────────────────────────────────────
+  // Any input containing "cruise" shows a cruise ship at sea
+  cruise:       'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',
+  cruiseship:   'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',
+  mediterranean:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',  // Med cruise
+  caribbean:    'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=1600&q=80',   // Caribbean cruise
+
+  // ── Easter eggs — unusual / fictional / space (Task 3) ─────────────────────
+  moon:         'https://images.unsplash.com/photo-1446941611757-91d2c3bd3d45?w=1600&q=80',  // Full moon close-up
+  mars:         'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=1600&q=80',  // Red planet surface
+  space:        'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Deep space/stars
+  galaxy:       'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Galaxy
+  milkyway:     'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Milky Way
+  outerspace:   'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Space
+  asteroid:     'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Space
+  saturn:       'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=1600&q=80',  // Saturn rings
+  jupiter:      'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=1600&q=80',  // Jupiter
+  neptune:      'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Space
+  pluto:        'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Space
+  mercury:      'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Space
+  venus:        'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Space
+  orbit:        'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // Space
+  iss:          'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&q=80',  // ISS / space station
+  narnia:       'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1600&q=80',  // Enchanted forest
+  hogwarts:     'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1600&q=80',  // Snowy castle
+  wakanda:      'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80',     // African savanna
+  mordor:       'https://images.unsplash.com/photo-1507699622108-4be3abd695ad?w=1600&q=80',  // Dramatic NZ landscape
+  middleearth:  'https://images.unsplash.com/photo-1507699622108-4be3abd695ad?w=1600&q=80',  // NZ / Hobbiton
+  pandora:      'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1600&q=80',  // Lush jungle
+  atlantis:     'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=1600&q=80',  // Ocean / underwater
+  underwatercity:'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=1600&q=80', // Underwater
+  northpole:    'https://images.unsplash.com/photo-1517699418036-fb5d179fef0c?w=1600&q=80',  // Arctic ice
+  arctic:       'https://images.unsplash.com/photo-1517699418036-fb5d179fef0c?w=1600&q=80',  // Arctic
+  antarctica:   'https://images.unsplash.com/photo-1517699418036-fb5d179fef0c?w=1600&q=80',  // Ice / penguin
+  southpole:    'https://images.unsplash.com/photo-1517699418036-fb5d179fef0c?w=1600&q=80',  // Antarctica
+  sahara:       'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1600&q=80',  // Sahara dunes
+  amazon:       'https://images.unsplash.com/photo-1510797215324-95aa89f43c33?w=1600&q=80',  // Amazon jungle
+
+  // ── High-quality travel fallback (Task 4) ─────────────────────────────────
+  // Used when no keyword matches — dramatic planet-from-space / travel shot
+  default:      'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1600&q=80'
 };
 
+// ════════════════════════════════════════
+// PHOTO RESOLVER — four-tier lookup
+//   1. Easter eggs  (space, fictional)  — checked first so "Moon Cruise" → moon
+//   2. Cruise keyword                   — "Mediterranean Cruise" → cruise ship
+//   3. Exact / longest-match on dest    — "New York City" → nyc
+//   4. High-quality travel fallback     — default Unsplash shot
+// ════════════════════════════════════════
 function getPhoto(dest){
   if(!dest) return DEST_PHOTOS.default;
-  const k = dest.toLowerCase().replace(/[\s,.-]/g,'');
-  for(const [kw,url] of Object.entries(DEST_PHOTOS)){
-    if(kw==='default') continue;
-    if(k.includes(kw)) return url;
+
+  // Normalise: lowercase, strip punctuation/spaces for dense matching
+  const raw  = dest.toLowerCase().trim();
+  const dense = raw.replace(/[\s,.'\-]/g, '');
+
+  // ── Tier 1: Easter eggs (space, fictional, unusual) ─────────────────────
+  const EASTER_KEYS = [
+    'moon','mars','space','galaxy','milkyway','outerspace','asteroid',
+    'saturn','jupiter','neptune','pluto','mercury','orbit','iss',
+    'narnia','hogwarts','wakanda','mordor','middleearth','pandora',
+    'atlantis','underwatercity','northpole','arctic','antarctica','southpole',
+    'sahara','amazon','venus'
+  ];
+  for(const k of EASTER_KEYS){
+    if(dense.includes(k) || raw.includes(k)) return DEST_PHOTOS[k];
   }
+
+  // ── Tier 2: Cruise keyword ───────────────────────────────────────────────
+  if(raw.includes('cruise') || dense.includes('cruise')) return DEST_PHOTOS.cruise;
+
+  // ── Tier 3: Longest-key-first match (prevents "oman" matching "amsterdam") ─
+  // Build sorted key list once (longest first = most specific wins)
+  const keys = Object.keys(DEST_PHOTOS)
+    .filter(k => k !== 'default' && !EASTER_KEYS.includes(k) && k !== 'cruise' && k !== 'cruiseship' && k !== 'caribbean' && k !== 'mediterranean')
+    .sort((a,b) => b.length - a.length);
+
+  // Try dense match first (strips spaces → "new york" matches "newyork")
+  for(const kw of keys){
+    if(dense.includes(kw)) return DEST_PHOTOS[kw];
+  }
+  // Try raw (space-preserved) match for multi-word keys like "new zealand"
+  for(const kw of keys){
+    if(raw.includes(kw)) return DEST_PHOTOS[kw];
+  }
+
+  // Try individual words from dest (handles "New York City" → "york" → newyork etc.)
+  const words = raw.split(/[\s,]+/).filter(w => w.length > 2);
+  for(const word of words){
+    for(const kw of keys){
+      if(kw.includes(word) || word.includes(kw)) return DEST_PHOTOS[kw];
+    }
+  }
+
+  // ── Tier 4: Fallback ─────────────────────────────────────────────────────
   return DEST_PHOTOS.default;
 }
 

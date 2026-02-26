@@ -1291,7 +1291,7 @@ function setAuthTab(t){
   document.getElementById('auth-login').style.display  = t==='login' ?'':'none';
   document.getElementById('auth-signup').style.display = t==='signup'?'':'none';
 }
-async async function doLogin(){
+async function doLogin(){
   const u=document.getElementById('li-user').value.trim().toLowerCase();
   const p=document.getElementById('li-pass').value;
   const err=document.getElementById('li-err');

@@ -1462,6 +1462,113 @@ function getVisibleTrips(db, username){
     .sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
 }
 
+// ════════════════════════════════════════
+// ADMIN GLOBAL TRIP FETCH
+//
+// Equivalent backend query:
+//   GET /trips  (no user_id filter)
+//   → reads _index.json from Dropbox  → {joinCode: tripId, ...}
+//   → for each tripId missing locally  → fetches /allabroad/{id}/meta.json
+//   → merges all records into localStorage
+//   → re-renders dashboard with complete global dataset
+//
+// This runs every time admin opens the dashboard so cross-device
+// trips created by any user appear immediately.
+// ════════════════════════════════════════
+async function adminFetchAllTrips(){
+  if(!isAdmin()) return;
+
+  // Show loading state in the trip list
+  const list = document.getElementById('trips-list');
+  if(list) list.innerHTML = '<div class="dash-empty"><div class="dash-empty-icon" style="animation:pulse 1.5s infinite">☁️</div><div class="dash-empty-ttl">Fetching all trips…</div><div class="dash-empty-sub">Scanning global database</div></div>';
+
+  const tok = await getAccessToken();
+  if(!tok){
+    renderDashboard();   // fall back to whatever is local
+    return;
+  }
+
+  try{
+    // ── Step 1: GET _index.json → complete map of {joinCode: tripId} ─────────
+    // This is the authoritative global registry — every trip that has ever been
+    // created and synced to Dropbox appears here regardless of which device made it.
+    const idxRes = await dbx.down(tok, indexCloudPath());
+    if(!idxRes.ok){
+      renderDashboard();
+      return;
+    }
+    const index = await idxRes.json();   // { "ABC123": "trip-1700000000000", ... }
+    const allTripIds = Object.values(index);   // ["trip-xxx", "trip-yyy", ...]
+
+    if(!allTripIds.length){
+      renderDashboard();
+      return;
+    }
+
+    // ── Step 2: Identify which trips are missing from this device ──────────────
+    const db = wDB();
+    const missingIds = allTripIds.filter(id => !db.trips[id]);
+
+    // ── Step 3: Fetch meta.json for every missing trip (parallel) ─────────────
+    // meta.json is written by createTrip() and contains:
+    //   { id, destination, dates, code, photo, owner, travelDate, tripDays, createdAt }
+    // This is enough to display the dashboard card and open the trip.
+    if(missingIds.length){
+      const fetches = missingIds.map(async id => {
+        try{
+          const res = await dbx.down(tok, tripMetaPath(id));
+          if(!res.ok) return null;
+          const meta = await res.json();
+          return meta;
+        }catch(e){ return null; }
+      });
+
+      const results = await Promise.allSettled(fetches);
+
+      // ── Step 4: Merge fetched metadata into localStorage ───────────────────
+      results.forEach(r => {
+        if(r.status === 'fulfilled' && r.value){
+          const meta = r.value;
+          if(!meta.id) return;
+          // Build a minimal trip record so the dashboard card renders correctly.
+          // Full state (itinerary, notes, etc.) loads when admin opens the trip
+          // via openTrip() → syncFromCloud().
+          db.trips[meta.id] = {
+            ...meta,
+            // Preserve full local data if somehow partially present
+            ...(db.trips[meta.id]||{}),
+            // Always use cloud meta fields as authoritative source
+            id:          meta.id,
+            destination: meta.destination,
+            dates:       meta.dates,
+            code:        meta.code,
+            photo:       meta.photo,
+            owner:       meta.owner,
+            travelDate:  meta.travelDate,
+            tripDays:    meta.tripDays,
+            createdAt:   meta.createdAt,
+            // Ensure required arrays exist for rendering
+            travelers:   db.trips[meta.id]?.travelers || [],
+            state:       db.trips[meta.id]?.state || {itinerary:[],notes:'',memories:[]},
+            tickets:     db.trips[meta.id]?.tickets || [],
+            deletedIds:  db.trips[meta.id]?.deletedIds || [],
+            deletedTravelers: db.trips[meta.id]?.deletedTravelers || [],
+            personLists: db.trips[meta.id]?.personLists || {}
+          };
+        }
+      });
+
+      wSave(db);   // persist merged global dataset to localStorage
+    }
+
+  }catch(e){
+    console.warn('[Admin] adminFetchAllTrips error:', e);
+  }
+
+  // ── Step 5: Re-render dashboard with complete global dataset ─────────────
+  renderDashboard();
+}
+
 /** Ensure the admin account record exists in the local DB */
 function ensureAdminAccount(){
   const db = wDB();
@@ -1875,7 +1982,11 @@ async function doLogin(){
     }
     err.textContent='';
     CU={username:u}; saveSession(u);
-    renderDashboard(); showScreen('dash');
+    // Show the dashboard shell immediately, then pull ALL trips from Dropbox.
+    // adminFetchAllTrips() is the "useEffect" equivalent — it fires on every
+    // admin login to guarantee cross-device trips are visible right away.
+    showScreen('dash');
+    adminFetchAllTrips();   // async: scans _index.json → fetches missing meta.json files → re-renders
     return;
   }
 
@@ -2088,7 +2199,7 @@ function renderDashboard(){
       adminPill = document.createElement('div');
       adminPill.id = 'admin-mode-pill';
       adminPill.style.cssText = 'margin:0 0 14px;padding:8px 16px;background:rgba(220,20,60,0.15);border:1px solid rgba(220,20,60,0.4);border-radius:10px;font-size:0.75rem;color:#ff6b8a;letter-spacing:0.08em;text-align:center;';
-      adminPill.innerHTML = '🔐 <strong>ADMIN MODE</strong> — Silent observer · Full read/write · Hidden from members';
+      adminPill.innerHTML = '🔐 <strong>ADMIN MODE</strong> — Silent observer · Full read/write · Hidden from members &nbsp;<button onclick="adminFetchAllTrips()" style="margin-left:10px;padding:3px 10px;background:rgba(220,20,60,0.3);border:1px solid rgba(220,20,60,0.5);border-radius:6px;color:#fff;font-size:0.7rem;cursor:pointer;font-family:inherit;">↺ Refresh All</button>';
       const lbl = document.getElementById('dash-lbl');
       lbl.parentNode.insertBefore(adminPill, lbl);
     }
@@ -2558,6 +2669,12 @@ function openTrip(id){
   fetchWeather(TRIP.destination);
   history.replaceState(null,'','#trip/'+id+'/'+currentTab);
   showScreen('trip',true);
+
+  // Admin: immediately sync from cloud to get full trip state
+  // (admin's local copy often only has the meta stub from adminFetchAllTrips)
+  if(isAdmin()){
+    setTimeout(syncFromCloud, 100);
+  }
 }
 
 // Persist trip state back to wDB
@@ -3402,7 +3519,17 @@ openIDB().then(async ()=>{
       return;
     }
   }
-  renderDashboard();showScreen('dash',true);history.replaceState(null,'','#dash');
+  // ── Admin: fetch all trips globally from Dropbox before rendering ─────────
+  // This is the "useEffect / data-loading hook" equivalent.
+  // Runs every time the admin opens the dashboard (including new devices)
+  // so cross-device trips are always visible immediately.
+  if(isAdmin()){
+    showScreen('dash',true);
+    history.replaceState(null,'','#dash');
+    adminFetchAllTrips();   // async: shows loader, fetches cloud, re-renders
+  } else {
+    renderDashboard();showScreen('dash',true);history.replaceState(null,'','#dash');
+  }
 });
 window.addEventListener('popstate',()=>{
   const hash=window.location.hash.replace('#','');

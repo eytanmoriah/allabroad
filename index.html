@@ -1299,9 +1299,9 @@ function saveSession(username){
 }
 function clearSession(){
   localStorage.removeItem('allabroad_session');
-  clearSession();
+  sessionStorage.removeItem('allabroad_cu');
 }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){ const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}; return String(s||'').replace(/[&<>"']/g,c=>m[c]); }
 
 // ════════════════════════════════════════
 // SCREEN ROUTING
@@ -1401,7 +1401,8 @@ function doLogout(){
   CU=null; openTripId=null;
   clearInterval(cdInterval);
   clearSession();
-  showScreen('auth');
+  showScreen('auth',true);
+  history.replaceState(null,'','#auth');
 }
 
 // ════════════════════════════════════════
@@ -1486,7 +1487,7 @@ function renderDashboard(){
   if(!CU) return;
   const db=wDB(), u=CU.username;
   document.getElementById('dash-tod').textContent   = timeWord();
-  const userRec = wDB().users[u]||{};
+  const userRec = db.users[u]||{};
   const displayFirst = userRec.firstName || userRec.displayName || u.split('@')[0];
   document.getElementById('dash-uname').textContent = displayFirst.charAt(0).toUpperCase()+displayFirst.slice(1);
   const av=document.getElementById('dash-av');

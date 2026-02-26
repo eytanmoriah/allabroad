@@ -640,6 +640,93 @@ code{font-family:monospace;}
 }
 
 /* ═══════════════════════════════════════════
+   CALENDAR RANGE PICKER
+════════════════════════════════════════════ */
+.cal-wrap{ position:relative; }
+.cal-display{
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; padding:13px 14px; box-sizing:border-box;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:11px; cursor:pointer;
+  font-size:0.9rem; color:#fff;
+  transition:border-color 0.2s;
+}
+.cal-display:hover,.cal-display:focus{ border-color:rgba(255,255,255,0.35); outline:none; }
+.cal-picker{
+  position:relative;
+  background:rgba(18,18,36,0.98);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px; padding:16px;
+  margin-top:8px; z-index:50;
+  box-shadow:0 8px 40px rgba(0,0,0,0.6);
+}
+.cal-nav{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px;
+}
+.cal-month-title{ font-weight:700; font-size:0.95rem; }
+.cal-nav-btn{
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+  border-radius:8px; color:#fff; width:32px; height:32px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:1.1rem;
+  transition:background 0.15s;
+}
+.cal-nav-btn:hover{ background:rgba(255,255,255,0.18); }
+.cal-grid{
+  display:grid; grid-template-columns:repeat(7,1fr);
+  gap:2px; margin-bottom:10px;
+}
+.cal-dow{
+  text-align:center; font-size:0.65rem; font-weight:600;
+  color:rgba(255,255,255,0.4); padding:4px 0;
+  text-transform:uppercase; letter-spacing:0.05em;
+}
+.cal-day{
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  border-radius:8px; font-size:0.82rem; cursor:pointer;
+  border:none; background:transparent; color:#fff;
+  transition:background 0.12s, color 0.12s;
+  min-height:34px;
+}
+.cal-day:hover:not(.cal-empty):not(.cal-past){ background:rgba(255,255,255,0.12); }
+.cal-day.cal-empty{ pointer-events:none; }
+.cal-day.cal-past{ opacity:0.3; pointer-events:none; }
+.cal-day.cal-start,.cal-day.cal-end{
+  background:var(--red) !important; color:#fff !important;
+  font-weight:700; border-radius:8px;
+}
+.cal-day.cal-in-range{
+  background:rgba(220,20,60,0.18); border-radius:0;
+}
+.cal-day.cal-start.cal-in-range,.cal-day.cal-start{ border-radius:8px 0 0 8px; }
+.cal-day.cal-end.cal-in-range,.cal-day.cal-end{ border-radius:0 8px 8px 0; }
+.cal-day.cal-start.cal-end{ border-radius:8px !important; }
+.cal-day.cal-today{ font-weight:700; text-decoration:underline; }
+.cal-hint{
+  text-align:center; font-size:0.75rem; color:rgba(255,255,255,0.45);
+  margin-bottom:12px; min-height:18px;
+}
+.cal-actions{
+  display:flex; gap:8px; justify-content:flex-end; margin-top:4px;
+}
+.cal-actions .btn-cancel{
+  padding:8px 16px; border-radius:9px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#fff; cursor:pointer; font-size:0.85rem;
+}
+.cal-actions .btn-primary{
+  padding:8px 18px; border-radius:9px;
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  border:none; color:#fff; cursor:pointer; font-size:0.85rem; font-weight:600;
+}
+.cal-actions .btn-primary:disabled{
+  opacity:0.35; cursor:not-allowed;
+}
+
+/* ═══════════════════════════════════════════
    RESPONSIVE — Mobile-first, single source of truth
    Covers: Pixel 10 (412px), iPhone SE (375px),
    iPhone 15 Pro Max (430px), iPad, Desktop
@@ -1047,6 +1134,32 @@ input, textarea, select { font-size: 16px !important; }
             </div>
           </div>
 
+          <!-- Trip Dates — organiser can edit -->
+          <div class="glass" style="padding:14px 18px;" id="tripDatesCard">
+            <div style="font-size:0.85rem;font-weight:600;margin-bottom:3px;">📅 Trip Dates</div>
+            <div style="font-size:0.72rem;opacity:0.5;margin-bottom:12px;" id="tripDatesHint">Tap to change your travel dates.</div>
+            <div class="cal-wrap" id="ed-cal-wrap">
+              <div class="cal-display" id="ed-dates-display" onclick="calToggle('ed')" tabindex="0"
+                onkeydown="if(event.key==='Enter'||event.key===' ')calToggle('ed')">
+                <span id="ed-dates-label">Loading…</span>
+                <span style="opacity:0.4;font-size:0.8rem;">📅</span>
+              </div>
+              <div class="cal-picker" id="ed-cal" style="display:none;">
+                <div class="cal-nav">
+                  <button type="button" onclick="calPrev('ed')" class="cal-nav-btn">‹</button>
+                  <span id="ed-cal-title" class="cal-month-title"></span>
+                  <button type="button" onclick="calNext('ed')" class="cal-nav-btn">›</button>
+                </div>
+                <div class="cal-grid" id="ed-cal-grid"></div>
+                <div class="cal-hint" id="ed-cal-hint">Tap a start date</div>
+                <div class="cal-actions">
+                  <button type="button" class="btn-cancel" onclick="calClear('ed')">Clear</button>
+                  <button type="button" class="btn-primary" id="ed-cal-confirm" onclick="calConfirm('ed')" disabled>Save Dates →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Travelers — read-only view (Allabroad handles adding via join codes) -->
           <div class="glass" style="padding:14px 18px;">
             <div style="font-size:0.85rem;font-weight:600;margin-bottom:3px;">👥 Travelers</div>
@@ -1069,8 +1182,12 @@ input, textarea, select { font-size: 16px !important; }
           <!-- Danger zone -->
           <div class="glass" style="padding:14px 18px;">
             <div style="font-size:0.85rem;font-weight:600;margin-bottom:6px;">⚠️ Danger Zone</div>
-            <div style="font-size:0.78rem;opacity:0.55;margin-bottom:12px;">Wipe this trip's data and start fresh on all devices.</div>
-            <button class="btn btn-glass" style="width:100%;border-color:rgba(220,20,60,0.4);color:rgba(255,100,100,0.85);" onclick="resetApp()">🗑️ Reset Trip Data</button>
+            <div style="font-size:0.78rem;opacity:0.55;margin-bottom:12px;">Destructive actions for organisers only.</div>
+            <button class="btn btn-glass" style="width:100%;border-color:rgba(220,20,60,0.4);color:rgba(255,100,100,0.85);margin-bottom:10px;" onclick="resetApp()">🔄 Reset Trip Data</button>
+            <div id="deleteTripBtnWrap" style="display:none;">
+              <button class="btn btn-glass" style="width:100%;border-color:rgba(255,69,96,0.6);color:#ff4560;background:rgba(255,69,96,0.1);"
+                onclick="openDeleteTrip(openTripId)">🗑 Delete Trip Permanently</button>
+            </div>
           </div>
 
         </div>
@@ -1105,7 +1222,27 @@ input, textarea, select { font-size: 16px !important; }
     <div class="modal-field"><label>Destination</label>
       <input type="text" id="nd-dest" placeholder="e.g. Tokyo, Amalfi Coast, Maldives" oninput="onDestInput(this.value)" onkeydown="if(event.key==='Enter')document.getElementById('nd-dates').focus()"></div>
     <div class="modal-field"><label>Travel Dates</label>
-      <input type="text" id="nd-dates" placeholder="e.g. June 12–20, 2026"></div>
+      <div class="cal-wrap" id="nd-cal-wrap">
+        <div class="cal-display" id="nd-dates-display" onclick="calToggle('nd')" tabindex="0"
+          onkeydown="if(event.key==='Enter'||event.key===' ')calToggle('nd')">
+          <span id="nd-dates-label">Select dates…</span>
+          <span style="opacity:0.4;font-size:0.8rem;">📅</span>
+        </div>
+        <div class="cal-picker" id="nd-cal" style="display:none;">
+          <div class="cal-nav">
+            <button type="button" onclick="calPrev('nd')" class="cal-nav-btn">‹</button>
+            <span id="nd-cal-title" class="cal-month-title"></span>
+            <button type="button" onclick="calNext('nd')" class="cal-nav-btn">›</button>
+          </div>
+          <div class="cal-grid" id="nd-cal-grid"></div>
+          <div class="cal-hint" id="nd-cal-hint">Tap a start date</div>
+          <div class="cal-actions">
+            <button type="button" class="btn-cancel" onclick="calClear('nd')">Clear</button>
+            <button type="button" class="btn-primary" id="nd-cal-confirm" onclick="calConfirm('nd')" disabled>Confirm →</button>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" id="nd-dates" value=""></div>
     <div class="modal-err" id="nd-err"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeMd('md-new-trip')">Cancel</button>
@@ -1561,9 +1698,159 @@ document.head.insertAdjacentHTML('beforeend','<style>@keyframes fadeUp{from{opac
 // ════════════════════════════════════════
 // NEW TRIP / JOIN TRIP
 // ════════════════════════════════════════
+
+// ════════════════════════════════════════
+// CALENDAR RANGE PICKER
+// Instances keyed by prefix: 'nd' (new trip) | 'ed' (edit dates)
+// ════════════════════════════════════════
+const _cal = {};   // per-instance state
+
+function calInit(prefix, existingDates){
+  const today = new Date(); today.setHours(0,0,0,0);
+  // Parse existing dates into start/end if provided (format: "Jun 12 – Jun 20, 2026")
+  let start = null, end = null;
+  if(existingDates){
+    const parts = existingDates.split('–').map(s=>s.trim());
+    if(parts.length === 2){
+      // Try to parse both sides: "Jun 12, 2026" or just "Jun 12"
+      const tryParse = str => {
+        // append current year if missing
+        const d = new Date(str.match(/\d{4}/) ? str : str + ', ' + today.getFullYear());
+        return isNaN(d) ? null : (d.setHours(0,0,0,0), d);
+      };
+      start = tryParse(parts[0]);
+      end   = tryParse(parts[1]);
+    }
+  }
+  const viewMonth = (start || today);
+  _cal[prefix] = {
+    viewYear:  viewMonth.getFullYear(),
+    viewMonth: viewMonth.getMonth(),   // 0-based
+    start, end, today,
+    selecting: start ? 'end' : 'start'
+  };
+  calRender(prefix);
+}
+
+function calToggle(prefix){
+  const picker = document.getElementById(prefix+'-cal');
+  if(!picker) return;
+  const open = picker.style.display !== 'none';
+  if(open){ picker.style.display='none'; return; }
+  // Init with current value if any
+  const label = document.getElementById(prefix+'-dates-label');
+  const hidden = document.getElementById(prefix+'-dates');
+  calInit(prefix, hidden ? hidden.value : '');
+  picker.style.display = 'block';
+}
+
+function calPrev(prefix){ _cal[prefix].viewMonth--; if(_cal[prefix].viewMonth<0){_cal[prefix].viewMonth=11;_cal[prefix].viewYear--;} calRender(prefix); }
+function calNext(prefix){ _cal[prefix].viewMonth++; if(_cal[prefix].viewMonth>11){_cal[prefix].viewMonth=0;_cal[prefix].viewYear++;} calRender(prefix); }
+
+function calRender(prefix){
+  const s = _cal[prefix];
+  const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  document.getElementById(prefix+'-cal-title').textContent = MONTHS[s.viewMonth] + ' ' + s.viewYear;
+
+  const firstDay = new Date(s.viewYear, s.viewMonth, 1).getDay();
+  const daysInMonth = new Date(s.viewYear, s.viewMonth+1, 0).getDate();
+
+  let html = DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0; i<firstDay; i++) html += `<div class="cal-day cal-empty"></div>`;
+
+  for(let d=1; d<=daysInMonth; d++){
+    const date = new Date(s.viewYear, s.viewMonth, d);
+    const isPast = date < s.today;
+    const isStart = s.start && date.getTime()===s.start.getTime();
+    const isEnd   = s.end   && date.getTime()===s.end.getTime();
+    const inRange = s.start && s.end && date > s.start && date < s.end;
+    const isToday = date.getTime()===s.today.getTime();
+    let cls = 'cal-day';
+    if(isPast) cls += ' cal-past';
+    if(isToday) cls += ' cal-today';
+    if(isStart) cls += ' cal-start';
+    if(isEnd)   cls += ' cal-end';
+    if(inRange||isStart||isEnd) cls += ' cal-in-range';
+    html += `<div class="${cls}" onclick="calPickDay('${prefix}',${s.viewYear},${s.viewMonth},${d})">${d}</div>`;
+  }
+
+  document.getElementById(prefix+'-cal-grid').innerHTML = html;
+
+  // Hint text
+  const hint = document.getElementById(prefix+'-cal-hint');
+  if(s.start && s.end){
+    const nights = Math.round((s.end-s.start)/(1000*60*60*24));
+    hint.textContent = `${nights} night${nights===1?'':'s'} selected`;
+  } else if(s.start){
+    hint.textContent = 'Now tap an end date';
+  } else {
+    hint.textContent = 'Tap a start date';
+  }
+
+  // Confirm button
+  const confirmBtn = document.getElementById(prefix+'-cal-confirm');
+  if(confirmBtn) confirmBtn.disabled = !(s.start && s.end);
+}
+
+function calPickDay(prefix, yr, mo, d){
+  const s = _cal[prefix];
+  const clicked = new Date(yr, mo, d);
+  clicked.setHours(0,0,0,0);
+  if(s.selecting === 'start' || !s.start || (s.end && clicked < s.start)){
+    s.start = clicked; s.end = null; s.selecting = 'end';
+  } else if(clicked.getTime() === s.start.getTime()){
+    // Clicked same day as start — reset
+    s.start = null; s.end = null; s.selecting = 'start';
+  } else if(clicked < s.start){
+    s.start = clicked; s.end = null; s.selecting = 'end';
+  } else {
+    s.end = clicked; s.selecting = 'start';
+  }
+  calRender(prefix);
+}
+
+function calClear(prefix){
+  if(_cal[prefix]){ _cal[prefix].start=null; _cal[prefix].end=null; _cal[prefix].selecting='start'; calRender(prefix); }
+  const hidden = document.getElementById(prefix+'-dates');
+  if(hidden) hidden.value = '';
+  const label = document.getElementById(prefix+'-dates-label');
+  if(label) label.textContent = 'Select dates…';
+}
+
+function calConfirm(prefix){
+  const s = _cal[prefix];
+  if(!s.start || !s.end) return;
+  const SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const sameMonth = s.start.getMonth()===s.end.getMonth() && s.start.getFullYear()===s.end.getFullYear();
+  let label;
+  if(sameMonth){
+    label = `${SHORT[s.start.getMonth()]} ${s.start.getDate()} – ${s.end.getDate()}, ${s.end.getFullYear()}`;
+  } else {
+    label = `${SHORT[s.start.getMonth()]} ${s.start.getDate()} – ${SHORT[s.end.getMonth()]} ${s.end.getDate()}, ${s.end.getFullYear()}`;
+  }
+  // Store in hidden input
+  const hidden = document.getElementById(prefix+'-dates');
+  if(hidden) hidden.value = label;
+  // Update display
+  const display = document.getElementById(prefix+'-dates-label');
+  if(display) display.textContent = label;
+  // Close picker
+  document.getElementById(prefix+'-cal').style.display = 'none';
+  // If editing dates (ed prefix), apply immediately
+  if(prefix === 'ed') applyNewDates(label, s.start, s.end);
+}
+
 function openNewTrip(){
   document.getElementById('nd-dest').value='';
   document.getElementById('nd-dates').value='';
+  // Reset calendar picker display
+  const ndLabel = document.getElementById('nd-dates-label');
+  if(ndLabel) ndLabel.textContent='Select dates…';
+  const ndCal = document.getElementById('nd-cal');
+  if(ndCal) ndCal.style.display='none';
   document.getElementById('nd-err').textContent='';
   document.getElementById('dest-prev').style.display='none';
   openMd('md-new-trip');
@@ -1587,6 +1874,7 @@ function createTrip(){
   const dates=document.getElementById('nd-dates').value.trim();
   const err=document.getElementById('nd-err');
   if(!dest){err.textContent='Please enter a destination.';return;}
+  if(!dates){err.textContent='Please select travel dates.';return;}
   const db=wDB(), id='trip-'+Date.now(), code=genCode();
   // Parse a travel date from the dates field if possible
   let travelDate = null;
@@ -1647,17 +1935,52 @@ function parseTravelDate(dates){
   return null;
 }
 function buildTripDays(dates){
-  // Generate day labels from "June 12–20, 2026" style
+  // Generate day labels from a date range string
   if(!dates) return ['Day 1','Day 2','Day 3','Day 4','Day 5'];
-  const m=dates.match(/(\d+)[–\-—to]+(\d+)/);
+  const SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // New calendar format: "Jun 12 – Jun 20, 2026" or "Jun 12 – 20, 2026"
+  // Split on em-dash, en-dash, or " - "
+  const parts = dates.split(/\s*[–—\-]\s*/);
+  if(parts.length === 2){
+    const yr = dates.match(/\d{4}/);
+    const year = yr ? parseInt(yr[0]) : new Date().getFullYear();
+    // Try parsing both sides as dates
+    const tryParse = str => {
+      const s = str.trim().replace(/,?\s*\d{4}/, ''); // strip year from end
+      const d = new Date(s + ', ' + year);
+      if(!isNaN(d)) return d;
+      // fallback: try adding current month context
+      return null;
+    };
+    const startD = tryParse(parts[0]);
+    // End might be just a number (same month): "Jun 12 – 20"
+    let endD = tryParse(parts[1]);
+    if(!endD && startD && /^\s*\d+\s*/.test(parts[1])){
+      endD = new Date(startD);
+      endD.setDate(parseInt(parts[1].trim()));
+    }
+    if(startD && endD && endD >= startD){
+      const days = [];
+      const cur = new Date(startD); cur.setHours(0,0,0,0);
+      const last = new Date(endD);  last.setHours(0,0,0,0);
+      while(cur <= last && days.length < 28){
+        days.push(SHORT[cur.getMonth()] + ' ' + cur.getDate());
+        cur.setDate(cur.getDate()+1);
+      }
+      if(days.length) return days;
+    }
+  }
+
+  // Legacy fallback: "June 12–20, 2026" style (just a number range)
+  const m = dates.match(/(\d+)[–\-—to]+(\d+)/);
   if(!m) return ['Day 1','Day 2','Day 3','Day 4','Day 5'];
-  const start=parseInt(m[1]),end=parseInt(m[2]);
+  const start=parseInt(m[1]), end=parseInt(m[2]);
   const len=Math.min(end-start+1,14);
-  // Try to get month
   const months={jan:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',may:'May',jun:'Jun',jul:'Jul',aug:'Aug',sep:'Sep',oct:'Oct',nov:'Nov',dec:'Dec'};
   let prefix='';
   for(const [k,v] of Object.entries(months)){ if(dates.toLowerCase().includes(k)){prefix=v+' ';break;} }
-  return Array.from({length:len>0?len:5},(_, i)=>prefix?(prefix+(start+i)):'Day '+(i+1));
+  return Array.from({length:len>0?len:5},(_,i)=>prefix?(prefix+(start+i)):'Day '+(i+1));
 }
 
 function openJoinTrip(){
@@ -2135,6 +2458,11 @@ function renderTravelerSettings(){
     <div class="trav-info"><div class="trav-name">${esc(displayName(t.username))}</div><div class="trav-role">Joined ${new Date(t.joinedAt||Date.now()).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div>
     <div class="trav-badge ${t.role==='owner'?'b-owner':'b-traveler'}">${t.role==='owner'?'Organiser':'Traveler'}</div>
   </div>`).join('');
+  // Show delete-trip button only to the organiser
+  const wrap=document.getElementById('deleteTripBtnWrap');
+  if(wrap) wrap.style.display=(TRIP&&TRIP.owner===CU.username)?'block':'none';
+  // Populate date picker with current trip dates
+  initSettingsDatePicker();
 }
 
 // ════════════════════════════════════════
@@ -2311,6 +2639,103 @@ async function confirmDeleteTrip(){
   }
   renderDashboard();
   showScreen('dash');
+}
+
+
+// ════════════════════════════════════════
+// EDIT TRIP DATES (Settings tab)
+// ════════════════════════════════════════
+function applyNewDates(dateLabel, startDate, endDate){
+  if(!openTripId || !TRIP) return;
+
+  // Build new TRIP_DAYS array from the selected date range
+  const newDays = [];
+  const SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const cur = new Date(startDate);
+  cur.setHours(0,0,0,0);
+  const last = new Date(endDate);
+  last.setHours(0,0,0,0);
+  while(cur <= last && newDays.length < 28){
+    newDays.push(`${SHORT[cur.getMonth()]} ${cur.getDate()}`);
+    cur.setDate(cur.getDate()+1);
+  }
+  if(!newDays.length) return;
+
+  const newDayCount = newDays.length;
+  const oldDayCount = TRIP_DAYS.length;
+
+  // Remove itinerary events whose day index >= newDayCount (orphaned days)
+  const removedDayIndices = new Set();
+  for(let i = newDayCount; i < oldDayCount; i++) removedDayIndices.add(i);
+
+  if(removedDayIndices.size > 0){
+    const orphanIds = state.itinerary
+      .filter(e => removedDayIndices.has(Number(e.day)))
+      .map(e => String(e.id));
+    // Add orphan IDs to deletedIds tombstone
+    deletedIds = [...new Set([...deletedIds, ...orphanIds])];
+    // Remove from in-memory itinerary
+    state.itinerary = state.itinerary.filter(e => !removedDayIndices.has(Number(e.day)));
+    if(orphanIds.length > 0){
+      showToast(`Removed ${orphanIds.length} event${orphanIds.length===1?'':'s'} from dates no longer in the trip.`);
+    }
+  }
+
+  // Update in-memory + TRIP object
+  TRIP_DAYS = newDays;
+  TRIP.tripDays   = newDays;
+  TRIP.dates      = dateLabel;
+  TRIP.travelDate = startDate.toISOString();
+
+  // If activeDay is now out of range, reset to 0
+  if(activeDay >= newDayCount){
+    activeDay = 0;
+    try{ localStorage.setItem('abt_day_'+openTripId, '0'); }catch(e){}
+  }
+
+  // Persist to localStorage + cloud
+  const db = wDB();
+  if(db.trips[openTripId]){
+    db.trips[openTripId].tripDays   = newDays;
+    db.trips[openTripId].dates      = dateLabel;
+    db.trips[openTripId].travelDate = startDate.toISOString();
+    db.trips[openTripId].state      = state;
+    db.trips[openTripId].deletedIds = deletedIds;
+    wSave(db);
+    TRIP = db.trips[openTripId];
+  }
+
+  // Update the trip header subtitle
+  const sub = document.getElementById('tripSubtitle');
+  if(sub) sub.textContent = dateLabel;
+
+  // Update countdown
+  TRAVEL_DATE = startDate.getTime();
+  clearInterval(cdInterval);
+  checkArrived(); updateCD(); cdInterval = setInterval(updateCD, 1000);
+
+  // Re-render itinerary with new days
+  buildDayTabs();
+  renderItinerary();
+
+  // Update the settings date label to reflect new value
+  const lbl = document.getElementById('ed-dates-label');
+  if(lbl) lbl.textContent = dateLabel;
+
+  // Queue cloud sync
+  setStatus('☁️ Pending…');
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncToCloud, 2000);
+}
+
+// Populate the settings date picker when the settings tab is opened
+function initSettingsDatePicker(){
+  const lbl = document.getElementById('ed-dates-label');
+  if(!lbl) return;
+  const dates = TRIP ? (TRIP.dates || '') : '';
+  lbl.textContent = dates || 'Select dates…';
+  const hidden = document.getElementById('ed-dates');
+  if(hidden) hidden.value = dates;
 }
 
 async function resetApp(){

@@ -40,6 +40,7 @@ html,body{height:100%;background:#0a0a1a;color:var(--text);font-family:'DM Sans'
   transition:opacity 0.3s ease;
   overflow:hidden;
 }
+/* Trip screen needs its own scroll */
 .screen.active{opacity:1;pointer-events:all;}
 
 /* ═══════════════════════════════════════════
@@ -251,7 +252,7 @@ html,body{height:100%;background:#0a0a1a;color:var(--text);font-family:'DM Sans'
 /* ═══════════════════════════════════════════
    ③ TRIP INTERIOR — identical structure to London app
 ═══════════════════════════════════════════ */
-#s-trip{background:#0a0a1a;}
+#s-trip{background:#0a0a1a;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
 
 /* Dynamic background image */
 .trip-bg{
@@ -606,6 +607,122 @@ code{font-family:monospace;}
   .modal-bd{align-items:center;}
   .modal-sh{border-radius:24px;padding-bottom:28px;}
 }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — iPhone / iPad / Android
+═══════════════════════════════════════════ */
+
+/* Small phones (≤375px — iPhone SE, older Androids) */
+@media(max-width:375px){
+  .auth-logo{font-size:2.2rem;}
+  .auth-card{padding:20px 16px;}
+  .dash-greeting{font-size:1.5rem;}
+  .trip-hdr h1{font-size:2.2rem;}
+  .cd-num{font-size:1.6rem;}
+  .cd-lbl{font-size:0.52rem;}
+  .tab-btn{font-size:0.6rem;}
+  .t-icon{font-size:1.15rem;}
+  .glass{padding:16px;}
+  .modal-sh{padding:12px 16px calc(var(--sab)+24px);}
+  .mem-grid{grid-template-columns:repeat(2,1fr);}
+  #btnBackToTrips{font-size:0.7rem;padding:5px 10px;}
+  .btn-new,.btn-join{font-size:0.82rem;padding:11px 12px;}
+}
+
+/* Standard phones (376px–430px — iPhone 12–15, most Android flagships) */
+@media(min-width:376px) and (max-width:430px){
+  .trip-hdr h1{font-size:2.6rem;}
+  .auth-logo{font-size:2.7rem;}
+}
+
+/* Large phones / small tablets (431px–600px) */
+@media(min-width:431px) and (max-width:600px){
+  .trips-scroll{padding:0 24px calc(var(--sab)+24px);}
+  .dash-head{padding-left:24px;padding-right:24px;}
+  .dash-lbl{padding:0 24px;}
+}
+
+/* Tablets portrait (601px–900px — iPad, Android tablets) */
+@media(min-width:601px) and (max-width:900px){
+  #s-auth{padding:60px 40px;}
+  .auth-card{max-width:460px;}
+  .dash-head{padding:calc(var(--sat)+28px) 32px 0;}
+  .dash-lbl{padding:0 32px;}
+  .trips-scroll{padding:0 32px calc(var(--sab)+32px);}
+  .trip-card{height:220px;}
+  .tc-dest{font-size:1.9rem;}
+  .mem-grid{grid-template-columns:repeat(4,1fr);}
+  .scroll-wrap{padding-left:max(32px,var(--sal));padding-right:max(32px,var(--sar));}
+  .modal-bd{align-items:center;}
+  .modal-sh{border-radius:24px;padding-bottom:32px;max-width:560px;}
+  .tab-btn{font-size:0.75rem;}
+  .t-icon{font-size:1.5rem;}
+  .cd-num{font-size:2.3rem;}
+}
+
+/* Tablets landscape + small desktop (901px–1200px) */
+@media(min-width:901px) and (max-width:1200px){
+  .dash-head{padding:calc(var(--sat)+32px) 48px 0;}
+  .dash-lbl{padding:0 48px;}
+  .trips-scroll{padding:0 48px calc(var(--sab)+32px);}
+  .trip-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .trip-card{margin-bottom:0;height:230px;}
+  .tc-dest{font-size:2rem;}
+  .scroll-wrap{max-width:900px;padding-left:max(40px,var(--sal));padding-right:max(40px,var(--sar));}
+  .mem-grid{grid-template-columns:repeat(4,1fr);}
+  .tab-bar{max-width:900px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0;}
+  #cdBar{padding-left:max(40px,var(--sal));padding-right:max(40px,var(--sar));}
+  .modal-bd{align-items:center;}
+  .modal-sh{border-radius:24px;max-width:600px;}
+}
+
+/* Desktop (1201px+) */
+@media(min-width:1201px){
+  .dash-head{padding:calc(var(--sat)+40px) 0 0;max-width:900px;margin:0 auto;width:100%;box-sizing:border-box;padding-left:40px;padding-right:40px;}
+  .dash-lbl{padding:0;max-width:900px;margin-left:auto;margin-right:auto;padding-left:40px;}
+  .trips-scroll{display:flex;flex-direction:column;align-items:center;}
+  .trips-inner{width:100%;max-width:900px;}
+  .trip-card{height:240px;}
+  .tc-dest{font-size:2.1rem;}
+  .scroll-wrap{max-width:960px;padding-left:48px;padding-right:48px;}
+  .mem-grid{grid-template-columns:repeat(5,1fr);}
+  .tab-bar{max-width:960px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0;}
+  #cdBar{padding-left:max(48px,var(--sal));padding-right:max(48px,var(--sar));}
+  .modal-sh{border-radius:24px;max-width:640px;}
+  .auth-card{max-width:440px;}
+}
+
+/* Landscape orientation on phones */
+@media(max-height:500px) and (orientation:landscape){
+  #cdBar{height:calc(48px + var(--sat));}
+  --cd-h:48px;
+  .cd-num{font-size:1.4rem;}
+  .cd-lbl{display:none;}
+  .scroll-wrap{padding-top:calc(48px + var(--sat) + 8px);}
+  .trip-hdr{padding:12px 0 10px;}
+  .trip-hdr h1{font-size:2rem;}
+  .tab-btn{padding:8px 4px 4px;min-height:44px;}
+  .tab-bar{--tab-h:52px;}
+  #s-auth{padding:20px 24px;}
+  .auth-logo{margin-bottom:0;}
+  .auth-tag{margin-bottom:16px;}
+  .auth-card{padding:16px 20px;}
+}
+
+/* Touch device optimisations */
+@media(hover:none){
+  .trip-card:hover .tc-bg{transform:none;}
+  .mem-cell:hover .mem-del{display:none;}
+  .mem-cell:active .mem-del{display:flex;}
+  .mem-cell:hover .mem-cap{opacity:0;}
+  .mem-cell:active .mem-cap{opacity:1;}
+}
+
+/* High-DPI screens — sharper borders */
+@media(-webkit-min-device-pixel-ratio:2),(min-resolution:192dpi){
+  .glass{border-width:0.5px;}
+  .trip-card{border-width:0.5px;}
+}
 </style>
 </head>
 <body>
@@ -623,19 +740,33 @@ code{font-family:monospace;}
       <button class="auth-tab" onclick="setAuthTab('signup')">Sign Up</button>
     </div>
     <div id="auth-login">
-      <div class="auth-field"><label>Username</label>
-        <input type="text" id="li-user" placeholder="your username" autocomplete="username"></div>
+      <div class="auth-field"><label>Email</label>
+        <input type="email" id="li-user" placeholder="jane@example.com" autocomplete="email"
+          onkeydown="if(event.key==='Enter')document.getElementById('li-pass').focus()"></div>
       <div class="auth-field"><label>Password</label>
         <input type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password"
           onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="auth-err" id="li-err"></div>
       <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+      <div style="text-align:center;margin-top:12px;">
+        <button onclick="openForgotPassword()" style="background:none;border:none;color:var(--dim);font-size:0.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px;touch-action:manipulation;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--dim)'">Forgot password?</button>
+      </div>
     </div>
     <div id="auth-signup" style="display:none">
-      <div class="auth-field"><label>Username</label>
-        <input type="text" id="su-user" placeholder="at least 3 characters" autocomplete="username"></div>
+      <div style="display:flex;gap:10px;">
+        <div class="auth-field" style="flex:1"><label>First Name</label>
+          <input type="text" id="su-fname" placeholder="Jane" autocomplete="given-name"
+            onkeydown="if(event.key==='Enter')document.getElementById('su-lname').focus()"></div>
+        <div class="auth-field" style="flex:1"><label>Last Name</label>
+          <input type="text" id="su-lname" placeholder="Smith" autocomplete="family-name"
+            onkeydown="if(event.key==='Enter')document.getElementById('su-email').focus()"></div>
+      </div>
+      <div class="auth-field"><label>Email</label>
+        <input type="email" id="su-email" placeholder="jane@example.com" autocomplete="email"
+          onkeydown="if(event.key==='Enter')document.getElementById('su-pass').focus()"></div>
       <div class="auth-field"><label>Password</label>
-        <input type="password" id="su-pass" placeholder="min 6 characters" autocomplete="new-password"></div>
+        <input type="password" id="su-pass" placeholder="min 6 characters" autocomplete="new-password"
+          onkeydown="if(event.key==='Enter')document.getElementById('su-pass2').focus()"></div>
       <div class="auth-field"><label>Confirm Password</label>
         <input type="password" id="su-pass2" placeholder="repeat password" autocomplete="new-password"
           onkeydown="if(event.key==='Enter')doSignup()"></div>
@@ -655,8 +786,9 @@ code{font-family:monospace;}
     <div class="dash-topbar">
       <div class="dash-logo">All<span>abroad</span></div>
       <div class="dash-user-row">
+        <button class="dash-signout" onclick="openAccountSettings()" style="color:var(--dim);">⚙︎ Account</button>
         <button class="dash-signout" onclick="doLogout()">Sign out</button>
-        <div class="dash-avatar" id="dash-av">?</div>
+        <div class="dash-avatar" id="dash-av" onclick="openAccountSettings()" style="cursor:pointer;">?</div>
       </div>
     </div>
     <div class="dash-greeting">Good <em id="dash-tod">day</em>,<br><span id="dash-uname">Traveller</span></div>
@@ -667,7 +799,7 @@ code{font-family:monospace;}
     </div>
   </div>
   <div class="dash-lbl" id="dash-lbl">Your Trips</div>
-  <div class="trips-scroll" id="trips-list"></div>
+  <div class="trips-scroll"><div id="trips-list" class="trips-inner"></div></div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -704,7 +836,6 @@ code{font-family:monospace;}
         <div id="tripSky"  style="font-size:0.78rem;opacity:0.6;margin-top:2px;">Loading weather…</div>
       </div>
       <div style="text-align:right;">
-        <div id="syncStatus" style="display:none;">Ready</div>
         <div style="font-size:0.7rem;opacity:0.4;margin-top:2px;" id="tripCodeStrip"></div>
       </div>
     </div>
@@ -915,6 +1046,62 @@ code{font-family:monospace;}
   </div>
 </div>
 
+
+<!-- Account Settings Modal -->
+<div class="modal-bd" id="md-account">
+  <div class="modal-sh">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Account</div>
+    <div class="modal-sub" id="acct-sub">Manage your profile and password.</div>
+    <div id="acct-profile" style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:14px;background:rgba(255,255,255,0.05);border-radius:14px;">
+      <div id="acct-av" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:#0a0a1a;flex-shrink:0;"></div>
+      <div>
+        <div id="acct-name" style="font-weight:600;font-size:0.95rem;"></div>
+        <div id="acct-email" style="font-size:0.75rem;color:var(--dim);margin-top:2px;"></div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:var(--dim);margin-bottom:12px;">Change Password</div>
+    <div class="modal-field">
+      <label>Current Password</label>
+      <input type="password" id="cp-current" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="modal-field">
+      <label>New Password</label>
+      <input type="password" id="cp-new" placeholder="min 6 characters" autocomplete="new-password">
+    </div>
+    <div class="modal-field">
+      <label>Confirm New Password</label>
+      <input type="password" id="cp-new2" placeholder="repeat new password" autocomplete="new-password"
+        onkeydown="if(event.key==='Enter')changePassword()">
+    </div>
+    <div class="modal-err" id="cp-err"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeMd('md-account')">Close</button>
+      <button class="btn-primary" onclick="changePassword()">Update Password →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal-bd" id="md-forgot">
+  <div class="modal-sh">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Reset Password</div>
+    <div class="modal-sub">Enter your email address and we'll show you your reset options.</div>
+    <div class="modal-field">
+      <label>Email Address</label>
+      <input type="email" id="fp-email" placeholder="jane@example.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter')doForgotPassword()">
+    </div>
+    <div class="modal-err" id="fp-err"></div>
+    <div id="fp-success" style="display:none;padding:14px;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.25);border-radius:11px;font-size:0.83rem;line-height:1.6;color:#6fcf97;margin-bottom:14px;"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeMd('md-forgot')">Cancel</button>
+      <button class="btn-primary" id="fp-btn" onclick="doForgotPassword()">Send Reset Info →</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1012,24 +1199,38 @@ function doLogin(){
   const db=wDB(), u=document.getElementById('li-user').value.trim().toLowerCase(), p=document.getElementById('li-pass').value;
   const err=document.getElementById('li-err');
   if(!u||!p){err.textContent='Please fill in all fields.';return;}
-  if(!db.users[u]){err.textContent='No account found.';return;}
+  if(!db.users[u]){err.textContent='No account found with that email.';return;}
   if(db.users[u].password!==btoa(p)){err.textContent='Incorrect password.';return;}
   err.textContent='';
   CU={username:u}; sessionStorage.setItem('allabroad_cu',JSON.stringify(CU));
   renderDashboard(); showScreen('dash');
 }
 function doSignup(){
-  const db=wDB(), u=document.getElementById('su-user').value.trim().toLowerCase(),
-        p=document.getElementById('su-pass').value, p2=document.getElementById('su-pass2').value;
-  const err=document.getElementById('su-err');
-  if(!u||!p){err.textContent='Please fill in all fields.';return;}
-  if(u.length<3){err.textContent='Username must be at least 3 characters.';return;}
+  const db=wDB();
+  const fname = document.getElementById('su-fname').value.trim();
+  const lname  = document.getElementById('su-lname').value.trim();
+  const email  = document.getElementById('su-email').value.trim().toLowerCase();
+  const p      = document.getElementById('su-pass').value;
+  const p2     = document.getElementById('su-pass2').value;
+  const err    = document.getElementById('su-err');
+  if(!fname||!email||!p){err.textContent='Please fill in all required fields.';return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Please enter a valid email address.';return;}
   if(p.length<6){err.textContent='Password must be at least 6 characters.';return;}
   if(p!==p2){err.textContent='Passwords do not match.';return;}
-  if(db.users[u]){err.textContent='Username already taken.';return;}
-  db.users[u]={password:btoa(p),createdAt:Date.now()}; wSave(db);
+  if(db.users[email]){err.textContent='An account with this email already exists.';return;}
+  // Store user — email is primary key, firstName maps to traveler_name
+  db.users[email]={
+    password:     btoa(p),
+    firstName:    fname,
+    lastName:     lname,
+    traveler_name: fname,          // maps directly to traveler_name
+    displayName:  fname+' '+(lname?lname.charAt(0)+'.':''),
+    email:        email,
+    createdAt:    Date.now()
+  };
+  wSave(db);
   err.textContent='';
-  CU={username:u}; sessionStorage.setItem('allabroad_cu',JSON.stringify(CU));
+  CU={username:email}; sessionStorage.setItem('allabroad_cu',JSON.stringify(CU));
   renderDashboard(); showScreen('dash');
 }
 function doGuest(){
@@ -1069,15 +1270,92 @@ function doLogout(){
 }
 
 // ════════════════════════════════════════
+// ACCOUNT SETTINGS & PASSWORD
+// ════════════════════════════════════════
+function openAccountSettings(){
+  if(!CU) return;
+  const db=wDB(), u=CU.username, rec=db.users[u]||{};
+  const name = rec.firstName ? rec.firstName+' '+(rec.lastName||'') : u.split('@')[0];
+  document.getElementById('acct-name').textContent  = name.trim();
+  document.getElementById('acct-email').textContent = rec.email||u;
+  const av=document.getElementById('acct-av');
+  av.textContent = rec.firstName ? (rec.firstName[0]+(rec.lastName?rec.lastName[0]:'')).toUpperCase() : initials(u);
+  av.style.background = `linear-gradient(135deg,${avColor(u)},${avColor(u+'x')})`;
+  document.getElementById('cp-current').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-new2').value='';
+  document.getElementById('cp-err').textContent='';
+  openMd('md-account');
+}
+
+function changePassword(){
+  if(!CU) return;
+  const db=wDB(), u=CU.username, rec=db.users[u];
+  const cur  = document.getElementById('cp-current').value;
+  const np   = document.getElementById('cp-new').value;
+  const np2  = document.getElementById('cp-new2').value;
+  const err  = document.getElementById('cp-err');
+  if(!cur||!np||!np2){err.textContent='Please fill in all fields.';return;}
+  if(rec.password!==btoa(cur)){err.textContent='Current password is incorrect.';return;}
+  if(np.length<6){err.textContent='New password must be at least 6 characters.';return;}
+  if(np!==np2){err.textContent='New passwords do not match.';return;}
+  rec.password=btoa(np);
+  wSave(db);
+  err.style.color='#4caf50';
+  err.textContent='Password updated successfully ✅';
+  document.getElementById('cp-current').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-new2').value='';
+  setTimeout(()=>{err.textContent='';err.style.color='#ff6b6b';},3000);
+}
+
+function openForgotPassword(){
+  document.getElementById('fp-email').value='';
+  document.getElementById('fp-err').textContent='';
+  document.getElementById('fp-success').style.display='none';
+  document.getElementById('fp-btn').style.display='';
+  closeMd('md-account');
+  openMd('md-forgot');
+  setTimeout(()=>document.getElementById('fp-email').focus(),400);
+}
+
+function doForgotPassword(){
+  const db=wDB();
+  const email=document.getElementById('fp-email').value.trim().toLowerCase();
+  const err=document.getElementById('fp-err');
+  const suc=document.getElementById('fp-success');
+  if(!email){err.textContent='Please enter your email address.';return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Please enter a valid email address.';return;}
+  if(!db.users[email]){err.textContent='No account found with that email address.';return;}
+  err.textContent='';
+  // Since this is a client-side app (no backend email server), we show
+  // the user their account info securely and instruct them to use
+  // the Change Password flow. A real backend would send a tokenised reset link.
+  const rec=db.users[email];
+  const name=rec.firstName||email.split('@')[0];
+  suc.innerHTML = `<strong>Account found for ${esc(name)} ✅</strong><br><br>
+    Since Allabroad runs entirely in your browser, password reset emails require a backend server (not yet configured).<br><br>
+    <strong>To reset your password right now:</strong><br>
+    1. Sign in with your current password<br>
+    2. Go to <strong>⚙︎ Account</strong> on the dashboard<br>
+    3. Use the <em>Change Password</em> section<br><br>
+    <span style="opacity:0.7;font-size:0.75rem;">If you've forgotten your password entirely, you'll need to create a new account or contact the app admin to reset it directly in the database.</span>`;
+  suc.style.display='block';
+  document.getElementById('fp-btn').style.display='none';
+}
+
+// ════════════════════════════════════════
 // DASHBOARD
 // ════════════════════════════════════════
 function renderDashboard(){
   if(!CU) return;
   const db=wDB(), u=CU.username;
   document.getElementById('dash-tod').textContent   = timeWord();
-  document.getElementById('dash-uname').textContent = u.charAt(0).toUpperCase()+u.slice(1);
+  const userRec = wDB().users[u]||{};
+  const displayFirst = userRec.firstName || userRec.displayName || u.split('@')[0];
+  document.getElementById('dash-uname').textContent = displayFirst.charAt(0).toUpperCase()+displayFirst.slice(1);
   const av=document.getElementById('dash-av');
-  av.textContent=initials(u);
+  av.textContent = userRec.firstName ? (userRec.firstName[0]+(userRec.lastName?userRec.lastName[0]:'')).toUpperCase() : initials(u);
   av.style.background=`linear-gradient(135deg,${avColor(u)},${avColor(u+'x')})`;
 
   const mine = Object.values(db.trips)
@@ -1105,7 +1383,123 @@ function renderDashboard(){
   }).join('');
 }
 // Inject fadeUp keyframe
-document.head.insertAdjacentHTML('beforeend',`<style>@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* ═══════════════════════════════════════════
+   RESPONSIVE — iPhone / iPad / Android
+═══════════════════════════════════════════ */
+
+/* Small phones (≤375px — iPhone SE, older Androids) */
+@media(max-width:375px){
+  .auth-logo{font-size:2.2rem;}
+  .auth-card{padding:20px 16px;}
+  .dash-greeting{font-size:1.5rem;}
+  .trip-hdr h1{font-size:2.2rem;}
+  .cd-num{font-size:1.6rem;}
+  .cd-lbl{font-size:0.52rem;}
+  .tab-btn{font-size:0.6rem;}
+  .t-icon{font-size:1.15rem;}
+  .glass{padding:16px;}
+  .modal-sh{padding:12px 16px calc(var(--sab)+24px);}
+  .mem-grid{grid-template-columns:repeat(2,1fr);}
+  #btnBackToTrips{font-size:0.7rem;padding:5px 10px;}
+  .btn-new,.btn-join{font-size:0.82rem;padding:11px 12px;}
+}
+
+/* Standard phones (376px–430px — iPhone 12–15, most Android flagships) */
+@media(min-width:376px) and (max-width:430px){
+  .trip-hdr h1{font-size:2.6rem;}
+  .auth-logo{font-size:2.7rem;}
+}
+
+/* Large phones / small tablets (431px–600px) */
+@media(min-width:431px) and (max-width:600px){
+  .trips-scroll{padding:0 24px calc(var(--sab)+24px);}
+  .dash-head{padding-left:24px;padding-right:24px;}
+  .dash-lbl{padding:0 24px;}
+}
+
+/* Tablets portrait (601px–900px — iPad, Android tablets) */
+@media(min-width:601px) and (max-width:900px){
+  #s-auth{padding:60px 40px;}
+  .auth-card{max-width:460px;}
+  .dash-head{padding:calc(var(--sat)+28px) 32px 0;}
+  .dash-lbl{padding:0 32px;}
+  .trips-scroll{padding:0 32px calc(var(--sab)+32px);}
+  .trip-card{height:220px;}
+  .tc-dest{font-size:1.9rem;}
+  .mem-grid{grid-template-columns:repeat(4,1fr);}
+  .scroll-wrap{padding-left:max(32px,var(--sal));padding-right:max(32px,var(--sar));}
+  .modal-bd{align-items:center;}
+  .modal-sh{border-radius:24px;padding-bottom:32px;max-width:560px;}
+  .tab-btn{font-size:0.75rem;}
+  .t-icon{font-size:1.5rem;}
+  .cd-num{font-size:2.3rem;}
+}
+
+/* Tablets landscape + small desktop (901px–1200px) */
+@media(min-width:901px) and (max-width:1200px){
+  .dash-head{padding:calc(var(--sat)+32px) 48px 0;}
+  .dash-lbl{padding:0 48px;}
+  .trips-scroll{padding:0 48px calc(var(--sab)+32px);}
+  .trip-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .trip-card{margin-bottom:0;height:230px;}
+  .tc-dest{font-size:2rem;}
+  .scroll-wrap{max-width:900px;padding-left:max(40px,var(--sal));padding-right:max(40px,var(--sar));}
+  .mem-grid{grid-template-columns:repeat(4,1fr);}
+  .tab-bar{max-width:900px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0;}
+  #cdBar{padding-left:max(40px,var(--sal));padding-right:max(40px,var(--sar));}
+  .modal-bd{align-items:center;}
+  .modal-sh{border-radius:24px;max-width:600px;}
+}
+
+/* Desktop (1201px+) */
+@media(min-width:1201px){
+  .dash-head{padding:calc(var(--sat)+40px) 0 0;max-width:900px;margin:0 auto;width:100%;box-sizing:border-box;padding-left:40px;padding-right:40px;}
+  .dash-lbl{padding:0;max-width:900px;margin-left:auto;margin-right:auto;padding-left:40px;}
+  .trips-scroll{display:flex;flex-direction:column;align-items:center;}
+  .trips-inner{width:100%;max-width:900px;}
+  .trip-card{height:240px;}
+  .tc-dest{font-size:2.1rem;}
+  .scroll-wrap{max-width:960px;padding-left:48px;padding-right:48px;}
+  .mem-grid{grid-template-columns:repeat(5,1fr);}
+  .tab-bar{max-width:960px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0;}
+  #cdBar{padding-left:max(48px,var(--sal));padding-right:max(48px,var(--sar));}
+  .modal-sh{border-radius:24px;max-width:640px;}
+  .auth-card{max-width:440px;}
+}
+
+/* Landscape orientation on phones */
+@media(max-height:500px) and (orientation:landscape){
+  #cdBar{height:calc(48px + var(--sat));}
+  --cd-h:48px;
+  .cd-num{font-size:1.4rem;}
+  .cd-lbl{display:none;}
+  .scroll-wrap{padding-top:calc(48px + var(--sat) + 8px);}
+  .trip-hdr{padding:12px 0 10px;}
+  .trip-hdr h1{font-size:2rem;}
+  .tab-btn{padding:8px 4px 4px;min-height:44px;}
+  .tab-bar{--tab-h:52px;}
+  #s-auth{padding:20px 24px;}
+  .auth-logo{margin-bottom:0;}
+  .auth-tag{margin-bottom:16px;}
+  .auth-card{padding:16px 20px;}
+}
+
+/* Touch device optimisations */
+@media(hover:none){
+  .trip-card:hover .tc-bg{transform:none;}
+  .mem-cell:hover .mem-del{display:none;}
+  .mem-cell:active .mem-del{display:flex;}
+  .mem-cell:hover .mem-cap{opacity:0;}
+  .mem-cell:active .mem-cap{opacity:1;}
+}
+
+/* High-DPI screens — sharper borders */
+@media(-webkit-min-device-pixel-ratio:2),(min-resolution:192dpi){
+  .glass{border-width:0.5px;}
+  .trip-card{border-width:0.5px;}
+}
+</style>`);
 
 // ════════════════════════════════════════
 // NEW TRIP / JOIN TRIP
